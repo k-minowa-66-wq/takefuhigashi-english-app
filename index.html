@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI英作文トレーニング - 武生東高校</title>
+  <!-- favicon 404エラー防止 -->
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --font-ud: "BIZ UDPGothic", "UD Digi Kyokasho NP-R", sans-serif;
+      --color-primary: #1d4ed8;
+      --color-primary-hover: #1e40af;
+      --color-success: #059669;
+      --color-bg: #f8fafc;
+      --color-card: #ffffff;
+      --color-text: #0f172a;
+      --color-border: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ud);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .alert-banner {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+
+    header p { font-size: 13px; color: #64748b; }
+    .school-name { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    .progress-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .progress-line-bg {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+
+    .progress-line-fill {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      height: 3px;
+      background: var(--color-primary);
+      transition: width 0.3s ease;
+      z-index: 1;
+      width: 0%;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .step-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #64748b;
+      font-weight: bold;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .step-item.active .step-badge {
+      background: var(--color-primary);
+      color: #ffffff;
+      box-shadow: 0 0 0 4px #dbeafe;
+    }
+
+    .step-item.completed .step-badge {
+      background: var(--color-success);
+      color: #ffffff;
+    }
+
+    .step-label { font-size: 11px; font-weight: bold; color: #94a3b8; }
+    .step-item.active .step-label { color: #1e3a8a; }
+    .step-item.completed .step-label { color: var(--color-success); }
+
+    .main-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 10px;
+      background: #e2e8f0;
+      color: #475569;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .nav-tab.active {
+      background: var(--color-primary);
+      color: #ffffff;
+    }
+
+    .card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    h2 {
+      font-size: 18px;
+      color: #1e293b;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .question-label {
+      background: #eff6ff;
+      border-left: 4px solid #1d4ed8;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #1e3a8a;
+      font-size: 13.5px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input[type="text"], input[type="email"], textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      font-family: var(--font-ud);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: #ffffff;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px #dbeafe;
+    }
+
+    textarea { font-family: monospace; resize: vertical; }
+
+    .ocr-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px 14px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px dashed #93c5fd;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+
+    .ocr-btn:hover {
+      background: #dbeafe;
+      border-color: #2563eb;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--color-primary);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: var(--color-primary-hover); }
+
+    .btn-group-3 {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-secondary {
+      background: #64748b;
+      color: #ffffff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+    }
+
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-home {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+    }
+
+    .btn-home:hover { background: #cbd5e1; }
+
+    .btn-main {
+      background: var(--color-primary);
+      color: #ffffff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      flex: 2;
+      text-align: center;
+    }
+
+    .btn-main:hover { background: var(--color-primary-hover); }
+
+    .essay-ref-title { font-size: 12px; font-weight: bold; color: #1e40af; margin-bottom: 4px; }
+    .essay-ref-box {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-bottom: 16px;
+    }
+
+    .ai-response {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--color-primary);
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      max-height: 540px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .ai-response .table-container { overflow-x: auto; margin: 12px 0; }
+    .ai-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .ai-table th { background-color: #1e3a8a; color: #ffffff; padding: 8px 10px; text-align: left; }
+    .ai-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+
+    .score-hero-container { display: flex; gap: 12px; margin-bottom: 20px; }
+    .score-hero-card {
+      flex: 1;
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      color: #ffffff;
+      padding: 16px 12px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
+    }
+
+    .score-hero-card.total { background: linear-gradient(135deg, #059669, #047857); }
+    .score-hero-card .label {
+      font-size: 11px;
+      font-weight: bold;
+      background: rgba(0,0,0,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .score-hero-card .score { font-size: 30px; font-weight: 900; margin: 4px 0; }
+
+    @media (max-width: 600px) {
+      .score-hero-container { flex-direction: column; }
+      .btn-group-3 { flex-direction: column; }
+    }
+
+    .timeline-item {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 5px solid #059669;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .loading-box {
+      background: #ffffff;
+      padding: 24px 32px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: bold;
+      color: #1e293b;
+      width: 85%;
+      max-width: 400px;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div id="alert-banner" class="alert-banner"></div>
+
+  <header>
+    <h1>AI英作文トレーニング</h1>
+    <p>自学自習 ＆ 授業連携ライティング（Vercel Hybrid）</p>
+    <p class="school-name">©福井県立武生東高等学校</p>
+  </header>
+
+  <div class="main-nav">
+    <button type="button" id="tab-create" class="nav-tab active">📝 英作文を作成する</button>
+    <button type="button" id="tab-history" class="nav-tab">📜 学びの履歴 (15点評価)</button>
+  </div>
+
+  <div id="section-create">
+    <div class="progress-card">
+      <div class="progress-steps">
+        <div class="progress-line-bg"></div>
+        <div class="progress-line-fill" id="progress-line"></div>
+
+        <div class="step-item active" id="step-node-1">
+          <div class="step-badge">1</div>
+          <span class="step-label">入力</span>
+        </div>
+        <div class="step-item" id="step-node-2">
+          <div class="step-badge">2</div>
+          <span class="step-label">修正1</span>
+        </div>
+        <div class="step-item" id="step-node-3">
+          <div class="step-badge">3</div>
+          <span class="step-label">修正2</span>
+        </div>
+        <div class="step-item" id="step-node-4">
+          <div class="step-badge">4</div>
+          <span class="step-label">対話</span>
+        </div>
+        <div class="step-item" id="step-node-5">
+          <div class="step-badge">5</div>
+          <span class="step-label">成果</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1ページ目 -->
+    <div id="page-1" class="page active card">
+      <h2>1. 課題設定と初版作成</h2>
+      <div class="form-group">
+        <label for="userEmail">生徒Emailまたは学籍番号：</label>
+        <input type="text" id="userEmail" placeholder="例: 2026001@school.ed.jp">
+      </div>
+      <div class="form-group">
+        <label for="topic">トピック（課題文）：</label>
+        <input type="text" id="topic" placeholder="例: What is the most important thing for high school students?">
+      </div>
+      <div class="form-group">
+        <label for="wordLimit">字数制限：</label>
+        <input type="text" id="wordLimit" placeholder="例: 60 words or more / 指定なし">
+      </div>
+      <div class="form-group">
+        <label for="originalEssay">初版（英作文）：</label>
+        
+        <button type="button" id="btn-trigger-ocr" class="ocr-btn">
+          📷 手書きの写真を撮影・選択して文字起こし
+        </button>
+        <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        
+        <textarea id="originalEssay" rows="5" placeholder="ここに英文を入力してください（上のボタンから写真を撮って文字起こしも可能です）..."></textarea>
+      </div>
+      <button type="button" id="btn-start-phase1" class="btn">添削スタート (Phase 1へ) ➔</button>
+    </div>
+
+    <!-- 2ページ目 -->
+    <div id="page-2" class="page card">
+      <h2>2. 初期評価と自力発見</h2>
+      <div class="essay-ref-title">📝 あなたの初版英文：</div>
+      <div class="essay-ref-box" id="disp-orig">（未入力）</div>
+      <label>🤖 AIからの気づき・アドバイス：</label>
+      <div class="ai-response" id="res-phase1">AIが解析中...</div>
+      <div class="form-group">
+        <label for="revised1">修正版1（Revised Version 1）を入力：</label>
+        <textarea id="revised1" rows="5" placeholder="問いかけを参考に修正した英文を入力してください..."></textarea>
+      </div>
+      <div class="btn-group-3">
+        <button type="button" id="btn-back-1" class="btn-secondary">← 前に戻る</button>
+        <button type="button" id="btn-home-2" class="btn-home">🏠 ホーム</button>
+        <button type="button" id="btn-start-phase2" class="btn-main">自己修正を送信 ➔</button>
+      </div>
+    </div>
+
+    <!-- 3ページ目 -->
+    <div id="page-3" class="page card">
+      <h2>3. 改善案（Option A/B）とブラッシュアップ</h2>
+      <div class="essay-ref-title">📝 あなたの修正英文（修正版1）：</div>
+      <div class="essay-ref-box" id="disp-rev1">（未入力）</div>
+      <label>🤖 抽出表現と改善案（Option A/B）：</label>
+      <div class="ai-response" id="res-phase2">AIが解析中...</div>
+      <div class="form-group">
+        <label for="revised2">修正版2（最終版）を入力：</label>
+        <textarea id="revised2" rows="5" placeholder="選択肢を参考にさらに仕上げた英文を入力..."></textarea>
+      </div>
+      <div class="btn-group-3">
+        <button type="button" id="btn-back-2" class="btn-secondary">← 前に戻る</button>
+        <button type="button" id="btn-home-3" class="btn-home">🏠 ホーム</button>
+        <button type="button" id="btn-start-phase3" class="btn-main">最終版を送信 ➔</button>
+      </div>
+    </div>
+
+    <!-- 4ページ目 -->
+    <div id="page-4" class="page card">
+      <h2>4. 思考プロセスの振り返り</h2>
+      <div class="essay-ref-title">📝 完成した英文（修正版2・最終版）：</div>
+      <div class="essay-ref-box" id="disp-rev2">（未入力）</div>
+      <label>🤖 AIからの評価と個別批判的質問：</label>
+      <div class="ai-response" id="res-phase3">AIが解析中...</div>
+      
+      <p style="font-weight: bold; margin-bottom: 12px; font-size: 14px; color: #1e3a8a;">【AIからの質問への回答】</p>
+      <div class="form-group">
+        <div class="question-label" id="lbl-ans1">Q1: AI質問を生成中...</div>
+        <textarea id="ans1" rows="2" placeholder="質問に対するあなたの考えや理由を入力してください..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="question-label" id="lbl-ans2">Q2: AI質問を生成中...</div>
+        <textarea id="ans2" rows="2" placeholder="質問に対するあなたの考えや理由を入力してください..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="question-label" id="lbl-ans3">Q3: AI質問を生成中...</div>
+        <textarea id="ans3" rows="2" placeholder="質問に対するあなたの考えや理由を入力してください..."></textarea>
+      </div>
+      <div class="btn-group-3">
+        <button type="button" id="btn-back-3" class="btn-secondary">← 前に戻る</button>
+        <button type="button" id="btn-home-4" class="btn-home">🏠 ホーム</button>
+        <button type="button" id="btn-start-phase4" class="btn-main">レポートを表示 ➔</button>
+      </div>
+    </div>
+
+    <!-- 5ページ目 -->
+    <div id="page-5" class="page">
+      <div class="score-hero-container">
+        <div class="score-hero-card">
+          <span class="label">初版基礎力</span>
+          <div class="score" id="val-init-score">-- / 12</div>
+          <p style="font-size: 11px;">12点満点</p>
+        </div>
+        <div class="score-hero-card">
+          <span class="label">改善努力度</span>
+          <div class="score" id="val-imp-score">-- / 3</div>
+          <p style="font-size: 11px;">3点満点</p>
+        </div>
+        <div class="score-hero-card total">
+          <span class="label">トータル（15点満点）</span>
+          <div class="score" id="val-total-score">-- / 15</div>
+          <p style="font-size: 11px;">学びに向かう姿勢</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>学びの最終統合レポート</h2>
+        <div class="ai-response" id="res-phase4">統合レポートを出力中...</div>
+        <div id="save-status" style="font-size: 12px; color: var(--color-success); font-weight: bold; text-align: center; margin-bottom: 12px;">
+          💾 スプレッドシートDBに15点満点で保存完了！
+        </div>
+        <div class="btn-group-3">
+          <button type="button" id="btn-back-4" class="btn-secondary">← 前の画面に戻る</button>
+          <button type="button" id="btn-home-5" class="btn-main">🏠 新しい課題を始める（ホーム）</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="section-history" style="display:none;" class="card">
+    <h2>📜 あなたの学習ポートフォリオ (15点評価)</h2>
+    <div id="history-list"><p style="text-align: center; color: #64748b; padding: 20px;">過去ログを読み込んでいます...</p></div>
+    <button type="button" id="btn-back-from-history" class="btn btn-secondary" style="margin-top:16px;">📝 英作文作成画面（ホーム）に戻る</button>
+  </div>
+
+  <div id="loading" class="loading-overlay">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p id="loading-msg">AIが解析中...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 【重要】ご自身のGASウェブアプリURLをここに設定してください
+  const DEFAULT_GAS_URL = "https://script.google.com/macros/s/YOUR_GAS_URL_HERE/exec";
+
+  function showBannerError(msg) {
+    const banner = document.getElementById('alert-banner');
+    if (banner) {
+      banner.innerText = msg;
+      banner.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function getGasUrl() {
+    if (!DEFAULT_GAS_URL || DEFAULT_GAS_URL.includes("YOUR_GAS_URL_HERE")) {
+      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。index.htmlのコード内を書き換えてVercelへ再デプロイしてください。");
+      throw new Error("No GAS URL Configured");
+    }
+    return DEFAULT_GAS_URL;
+  }
+
+  async function callGasBackend(actionData) {
+    let url = "";
+    try {
+      url = getGasUrl();
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+
+    showLoading(true, actionData.loadingMsg || "AIが解析中...");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(actionData),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      const text = await res.text();
+
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (pErr) {
+        showBannerError("⚠️ ［通信エラー］GASからJSON以外のレスポンスが返されました。GASのデプロイ権限が「全員（Anyone）」になっているか確認してください。");
+        return { success: false, error: "非JSON形式の応答: " + text.substring(0, 100) };
+      }
+      
+      return data;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      let errMsg = err.toString();
+      if (err.name === 'AbortError') {
+        errMsg = "通信がタイムアウトしました (45秒)。時間をおいて再度お試しください。";
+      }
+      showBannerError("⚠️ 通信エラー: " + errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function showLoading(show, msg) {
+    const overlay = document.getElementById('loading');
+    const msgEl = document.getElementById('loading-msg');
+    if (msg) msgEl.innerText = msg;
+    if (overlay) overlay.style.display = show ? 'flex' : 'none';
+  }
+
+  function triggerImageInput() {
+    const fileInput = document.getElementById('imageInput');
+    if (fileInput) {
+      fileInput.value = null;
+      fileInput.click();
+    }
+  }
+
+  async function handleImageOCR(event) {
+    const file = event && event.target && event.target.files && event.target.files[0];
+    if (!file) return;
+
+    showLoading(true, "📷 画像を最適化＆文字起こし中...");
+
+    try {
+      const base64Image = await compressImageFile(file, 1280, 0.80);
+      const ocrPrompt = "Perform OCR on this handwritten English essay image for high school students. Extract ONLY the English text written in the image. Do NOT include any greetings, labels, or notes. Transcribe the text exactly as written.";
+
+      const res = await callGasBackend({
+        action: "callGeminiAPI",
+        prompt: ocrPrompt,
+        base64ImageData: base64Image,
+        maxTokens: 1500,
+        loadingMsg: "📷 手書き文字を読み取り中..."
+      });
+
+      if (res.success && res.response) {
+        const origInput = document.getElementById('originalEssay');
+        if (origInput) origInput.value = res.response.trim();
+        alert("📷 文字起こしが完了しました！内容をご確認・必要に応じて修正してください。");
+      } else {
+        alert("文字起こし失敗:\n" + (res.error || "文字を読み取れませんでした。もう一度撮影してください。"));
+      }
+    } catch (err) {
+      alert("画像処理エラー: " + err.toString());
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function compressImageFile(file, maxSideLength, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxSideLength || height > maxSideLength) {
+            if (width > height) {
+              height = Math.round((height * maxSideLength) / width);
+              width = maxSideLength;
+            } else {
+              width = Math.round((width * maxSideLength) / height);
+              height = maxSideLength;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function switchMainTab(tab) {
+    const secCreate = document.getElementById('section-create');
+    const secHistory = document.getElementById('section-history');
+    const tabCreate = document.getElementById('tab-create');
+    const tabHistory = document.getElementById('tab-history');
+
+    if (secCreate) secCreate.style.display = tab === 'create' ? 'block' : 'none';
+    if (secHistory) secHistory.style.display = tab === 'history' ? 'block' : 'none';
+    if (tabCreate) tabCreate.classList.toggle('active', tab === 'create');
+    if (tabHistory) tabHistory.classList.toggle('active', tab === 'history');
+
+    if (tab === 'history') {
+      loadHistory();
+    }
+  }
+
+  function goHome() {
+    const activePage = document.querySelector('.page.active');
+    if (activePage && activePage.id !== 'page-1' && activePage.id !== 'page-5') {
+      if (!confirm("入力中の内容は破棄されますが、最初の入力画面に戻りますか？")) return;
+    }
+    navigateTo(1);
+  }
+
+  function navigateTo(stepNum) {
+    switchMainTab('create');
+
+    for (let i = 1; i <= 5; i++) {
+      const p = document.getElementById('page-' + i);
+      if (p) p.classList.remove('active');
+
+      const node = document.getElementById('step-node-' + i);
+      if (node) {
+        node.classList.remove('active', 'completed');
+        if (i < stepNum) {
+          node.classList.add('completed');
+          const badge = node.querySelector('.step-badge');
+          if (badge) badge.innerText = '✓';
+        } else if (i === stepNum) {
+          node.classList.add('active');
+          const badge = node.querySelector('.step-badge');
+          if (badge) badge.innerText = i;
+        } else {
+          const badge = node.querySelector('.step-badge');
+          if (badge) badge.innerText = i;
+        }
+      }
+    }
+
+    const targetPage = document.getElementById('page-' + stepNum);
+    if (targetPage) targetPage.classList.add('active');
+
+    const progressLine = document.getElementById('progress-line');
+    if (progressLine) progressLine.style.width = ((stepNum - 1) / 4 * 100) + '%';
+
+    const elOrig = document.getElementById('originalEssay');
+    const elRev1 = document.getElementById('revised1');
+    const elRev2 = document.getElementById('revised2');
+
+    const dispOrig = document.getElementById('disp-orig');
+    const dispRev1 = document.getElementById('disp-rev1');
+    const dispRev2 = document.getElementById('disp-rev2');
+
+    if (dispOrig) dispOrig.innerText = (elOrig && elOrig.value) ? elOrig.value : "（未入力）";
+    if (dispRev1) dispRev1.innerText = (elRev1 && elRev1.value) ? elRev1.value : "（未入力）";
+    if (dispRev2) dispRev2.innerText = (elRev2 && elRev2.value) ? elRev2.value : "（未入力）";
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function formatAiResponseText(text) {
+    if (!text) return "";
+    const lines = text.split('\n');
+    let htmlResult = [];
+    let inTable = false;
+    let tableBuffer = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (line.startsWith('|')) {
+        if (line.includes('---')) continue;
+        if (!line.endsWith('|')) line += ' |';
+        const cells = line.split('|').slice(1, -1).map(c => escapeHtml(c.trim()));
+        if (cells.length > 1) {
+          if (!inTable) {
+            inTable = true;
+            tableBuffer = ['<div class="table-container"><table class="ai-table"><thead><tr>'];
+            cells.forEach(c => tableBuffer.push('<th>' + c + '</th>'));
+            tableBuffer.push('</tr></thead><tbody>');
+          } else {
+            tableBuffer.push('<tr>');
+            cells.forEach(c => tableBuffer.push('<td>' + c + '</td>'));
+            tableBuffer.push('</tr>');
+          }
+          continue;
+        }
+      }
+      if (inTable) {
+        inTable = false;
+        tableBuffer.push('</tbody></table></div>');
+        htmlResult.push(tableBuffer.join(''));
+        tableBuffer = [];
+      }
+      if (line !== '') htmlResult.push('<div>' + escapeHtml(line) + '</div>');
+      else htmlResult.push('<div style="height:8px;"></div>');
+    }
+    if (inTable) {
+      tableBuffer.push('</tbody></table></div>');
+      htmlResult.push(tableBuffer.join(''));
+    }
+    return htmlResult.join('');
+  }
+
+  function setAiResponseContent(elementId, text) {
+    const el = document.getElementById(elementId);
+    if (el) el.innerHTML = formatAiResponseText(text);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+
+  async function processPhase1() {
+    const elOrig = document.getElementById('originalEssay');
+    const orig = elOrig ? elOrig.value : "";
+    if (!orig || orig.trim() === "") return alert("初版の英文を入力してください。");
+
+    try {
+      const topic = document.getElementById('topic') ? document.getElementById('topic').value : "";
+      const limit = document.getElementById('wordLimit') ? document.getElementById('wordLimit').value : "";
+      const prompt = "Topic:[" + topic + "]\nLimit:[" + limit + "]\nEssay:[" + orig + "]\n生徒の英文に対する【自力修正を促すアドバイス・問いかけ】を【最大3項目まで】箇条書きで出力してください。箇条書きのみで正解案は絶対に出力しないでください。";
+
+      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ AIが初版英文を解析中..." });
+      if (res.success && res.response) {
+        setAiResponseContent('res-phase1', res.response);
+        navigateTo(2);
+      } else {
+        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+      }
+    } catch (err) {
+      alert("処理中にエラーが発生しました: " + err.toString());
+    }
+  }
+
+  async function processPhase2() {
+    const elRev1 = document.getElementById('revised1');
+    const rev1 = elRev1 ? elRev1.value : "";
+    if (!rev1 || rev1.trim() === "") return alert("修正版1を入力してください。");
+
+    try {
+      const prompt = [
+        "生徒の修正版1:[" + rev1 + "]",
+        "",
+        "不自然な表現を【3項目】抽出し、指定のMarkdown表で出力してください。",
+        "",
+        "### 1. 自己修正の確認",
+        "（1〜2行でコメント）",
+        "",
+        "### 2. 抽出表現と改善案（Option A / Option B）",
+        "| 抽出された表現 (原文) | 不自然な理由 | Option A (シンプル・確実) | Option B (自然・表現力UP) | ２つのOptionsの違い |",
+        "| :--- | :--- | :--- | :--- | :--- |"
+      ].join("\n");
+
+      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ 改善案（Option A/B）を生成中..." });
+      if (res.success && res.response) {
+        setAiResponseContent('res-phase2', res.response);
+        navigateTo(3);
+      } else {
+        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+      }
+    } catch (err) {
+      alert("処理中にエラーが発生しました: " + err.toString());
+    }
+  }
+
+  async function processPhase3() {
+    const elOrig = document.getElementById('originalEssay');
+    const elRev1 = document.getElementById('revised1');
+    const elRev2 = document.getElementById('revised2');
+
+    const orig = elOrig ? elOrig.value : "";
+    const rev1 = elRev1 ? elRev1.value : "";
+    const rev2 = elRev2 ? elRev2.value : "";
+
+    if (!rev2 || rev2.trim() === "") return alert("修正版2を入力してください。");
+
+    try {
+      const prompt = [
+        "生徒の英作文の変遷：",
+        "・【初版】: " + orig,
+        "・【修正版1】: " + rev1,
+        "・【修正版2 (最終版)】: " + rev2,
+        "",
+        "上記の生徒の英文の修正プロセスを分析し、以下を出力してください。",
+        "",
+        "### 1. 最終チェック短評",
+        "(短評を2行程度)",
+        "",
+        "### 2. 振り返りインタビュー質問",
+        "【Q1】(初版から修正版2への具体的変更に対する質問)",
+        "【Q2】(提案された他の表現を選ばなかった理由を突く質問)",
+        "【Q3】(あえて修正せず残した部分に対する質問)"
+      ].join("\n");
+
+      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ 振り返り質問を生成中..." });
+      if (res.success && res.response) {
+        setAiResponseContent('res-phase3', res.response);
+        updateInterviewLabels(res.response);
+        navigateTo(4);
+      } else {
+        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+      }
+    } catch (err) {
+      alert("処理中にエラーが発生しました: " + err.toString());
+    }
+  }
+
+  function updateInterviewLabels(text) {
+    if (!text) return;
+    const q1Match = text.match(/【Q1】\s*(.+)/);
+    const q2Match = text.match(/【Q2】\s*(.+)/);
+    const q3Match = text.match(/【Q3】\s*(.+)/);
+
+    const lbl1 = document.getElementById('lbl-ans1');
+    const lbl2 = document.getElementById('lbl-ans2');
+    const lbl3 = document.getElementById('lbl-ans3');
+
+    if (lbl1) lbl1.innerText = (q1Match && q1Match[1]) ? "Q1: " + q1Match[1].trim() : "Q1: 初版から修正版でその表現に変更した理由は何ですか？";
+    if (lbl2) lbl2.innerText = (q2Match && q2Match[1]) ? "Q2: " + q2Match[1].trim() : "Q2: AIから提案された他の表現を選ばなかった理由は何ですか？";
+    if (lbl3) lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
+  }
+
+  async function processPhase4() {
+    const elOrig = document.getElementById('originalEssay');
+    const elRev1 = document.getElementById('revised1');
+    const elRev2 = document.getElementById('revised2');
+
+    const orig = elOrig ? elOrig.value : "";
+    const rev1 = elRev1 ? elRev1.value : "";
+    const rev2 = elRev2 ? elRev2.value : "";
+
+    const topic = document.getElementById('topic') ? document.getElementById('topic').value : "";
+    const limit = document.getElementById('wordLimit') ? document.getElementById('wordLimit').value : "";
+    const ans1 = document.getElementById('ans1') ? document.getElementById('ans1').value : "";
+    const ans2 = document.getElementById('ans2') ? document.getElementById('ans2').value : "";
+    const ans3 = document.getElementById('ans3') ? document.getElementById('ans3').value : "";
+
+    try {
+      const prompt = [
+        "以下の学習データから「学びの最終統合レポート」を簡潔に作成してください。",
+        "",
+        "Topic:[" + topic + "] | Limit:[" + limit + "]",
+        "Original:[" + orig + "] | Revised 2:[" + rev2 + "]",
+        "Q1:[" + ans1 + "] | Q2:[" + ans2 + "] | Q3:[" + ans3 + "]",
+        "",
+        "### 1. Final Integrated Summary",
+        "(英語1〜2文で総評)",
+        "【日本語訳】",
+        "(日本語訳1文)",
+        "",
+        "### 2. 12-Point Rubric Evaluation (Original vs Revised 2)",
+        "| 評価項目 | 初版 (Original) | 修正版2 (Revised 2) | 改善のポイント |",
+        "| :--- | :--- | :--- | :--- |",
+        "| 文法・語彙 | (8文字以内) | (8文字以内) | (8文字以内) |",
+        "| 構成・論理 | (8文字以内) | (8文字以内) | (8文字以内) |",
+        "| 表現の自然さ | (8文字以内) | (8文字以内) | (8文字以内) |",
+        "",
+        "### 3. Model Essay (模範解答と和訳)",
+        "【模範英文】",
+        "(高校生レベルの模範英文40語程度)",
+        "【日本語訳】",
+        "(模範英文の和訳)",
+        "",
+        "### 4. Score Summary",
+        "Initial Score: X / 12 pts",
+        "Improvement Evaluation: Y / 3 pts"
+      ].join("\n");
+
+      const res = await callGasBackend({ 
+        action: "callGeminiAPI", 
+        prompt: prompt, 
+        maxTokens: 1800, 
+        loadingMsg: "🚀 統合レポートを生成中..." 
+      });
+
+      if (res.success && res.response) {
+        setAiResponseContent('res-phase4', res.response);
+
+        let initVal = 8;
+        let impVal = 3;
+
+        try {
+          const text = res.response;
+          const initM = text.match(/Initial\s*Score\s*[:=]\s*\*?\*?(\d{1,2})/i) || text.match(/初版.*[:=]\s*(\d{1,2})/i);
+          const impM = text.match(/Improvement\s*(?:Evaluation|Score)?\s*[:=]\s*\*?\*?([1-3])/i) || text.match(/改善度.*[:=]\s*([1-3])/i);
+          
+          if (initM && initM[1]) initVal = parseInt(initM[1], 10);
+          if (impM && impM[1]) impVal = parseInt(impM[1], 10);
+        } catch (parseErr) {
+          console.warn("スコア抽出警告:", parseErr);
+        }
+
+        const totalVal = initVal + impVal;
+        const elInit = document.getElementById('val-init-score');
+        const elImp = document.getElementById('val-imp-score');
+        const elTotal = document.getElementById('val-total-score');
+
+        if (elInit) elInit.innerText = initVal + ' / 12';
+        if (elImp) elImp.innerText = impVal + ' / 3';
+        if (elTotal) elTotal.innerText = totalVal + ' / 15';
+
+        navigateTo(5);
+
+        const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+        callGasBackend({
+          action: "saveLearningLog",
+          logData: {
+            userEmail: email,
+            topic: topic,
+            wordLimit: limit,
+            originalEssay: orig,
+            revised1: rev1,
+            revised2: rev2,
+            interviewAnswers: [ans1, ans2, ans3],
+            initialScore: initVal + " / 12 pts",
+            improvementScore: impVal + " / 3 pts",
+            finalReportText: res.response
+          }
+        });
+      } else {
+        alert("レポート生成に失敗しました:\n" + (res.error || "AIからの応答を取得できませんでした。再度送信ボタンを押してください。"));
+      }
+    } catch (err) {
+      alert("処理中にエラーが発生しました: " + err.toString());
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+      const res = await callGasBackend({ action: "getLearningHistory", userEmail: email, loadingMsg: "📜 学習履歴を取得中..." });
+      const listDiv = document.getElementById('history-list');
+      if (!listDiv) return;
+
+      if (res.success && res.logs && res.logs.length > 0) {
+        let html = '';
+        res.logs.forEach(log => {
+          html += '<div class="timeline-item">' +
+            '<div style="font-size:12px; color:#64748b;">📅 ' + log.timestamp + ' | 生徒: ' + escapeHtml(log.userEmail) + '</div>' +
+            '<div style="font-weight:bold; font-size:15px; margin:4px 0; color:#1e293b;">課題: ' + escapeHtml(log.topic) + '</div>' +
+            '<div style="font-size:13px; color:#1d4ed8; font-weight:bold; margin-bottom:6px;">' +
+              '🏆 トータル（15点満点）: ' + log.totalScore + ' / 15点 （初版:' + log.initScore + '点 + 改善:' + log.impScore + '点）' +
+            '</div>' +
+            '<div style="font-size:12px; color:#334155; margin-bottom:4px;"><b>最終版(Revised 2):</b> ' + escapeHtml(log.revised2) + '</div>' +
+            (log.pdfUrl ? '<a href="' + log.pdfUrl + '" target="_blank" style="font-size:12px; color:var(--color-primary); font-weight:bold;">📄 PDFを表示</a>' : '') +
+          '</div>';
+        });
+        listDiv.innerHTML = html;
+      } else {
+        listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">まだ保存された学習履歴がありません。</p>';
+      }
+    } catch (err) {
+      console.error("履歴取得エラー:", err);
+    }
+  }
+
+  window.switchMainTab = switchMainTab;
+  window.triggerImageInput = triggerImageInput;
+  window.handleImageOCR = handleImageOCR;
+  window.processPhase1 = processPhase1;
+  window.processPhase2 = processPhase2;
+  window.processPhase3 = processPhase3;
+  window.processPhase4 = processPhase4;
+  window.navigateTo = navigateTo;
+  window.goHome = goHome;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!DEFAULT_GAS_URL || DEFAULT_GAS_URL.includes("YOUR_GAS_URL_HERE")) {
+      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。index.htmlのコード内を書き換えてVercelへ再デプロイしてください。");
+    }
+
+    const bind = (id, event, handler) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(event, handler);
+    };
+
+    bind('tab-create', 'click', () => switchMainTab('create'));
+    bind('tab-history', 'click', () => switchMainTab('history'));
+    bind('btn-back-from-history', 'click', () => switchMainTab('create'));
+
+    for (let i = 1; i <= 5; i++) {
+      bind('step-node-' + i, 'click', () => navigateTo(i));
+    }
+
+    bind('btn-trigger-ocr', 'click', triggerImageInput);
+    bind('imageInput', 'change', handleImageOCR);
+    bind('btn-start-phase1', 'click', processPhase1);
+    bind('btn-start-phase2', 'click', processPhase2);
+    bind('btn-start-phase3', 'click', processPhase3);
+    bind('btn-start-phase4', 'click', processPhase4);
+
+    bind('btn-back-1', 'click', () => navigateTo(1));
+    bind('btn-back-2', 'click', () => navigateTo(2));
+    bind('btn-back-3', 'click', () => navigateTo(3));
+    bind('btn-back-4', 'click', () => navigateTo(4));
+
+    bind('btn-home-2', 'click', goHome);
+    bind('btn-home-3', 'click', goHome);
+    bind('btn-home-4', 'click', goHome);
+    bind('btn-home-5', 'click', goHome);
+  });
+</script>
+</body>
+</html>
