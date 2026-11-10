@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI英作文トレーニング - 武生東高校</title>
-  <!-- favicon 404エラー防止 -->
   <link rel="icon" href="data:,">
   <style>
     :root {
@@ -218,16 +217,16 @@
 
     textarea { font-family: monospace; resize: vertical; }
 
-    .ocr-btn {
+    .open-ocr-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       width: 100%;
       padding: 10px 14px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      border: 1px dashed #93c5fd;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
       border-radius: 8px;
       font-size: 13px;
       font-weight: bold;
@@ -236,9 +235,9 @@
       transition: all 0.2s;
     }
 
-    .ocr-btn:hover {
-      background: #dbeafe;
-      border-color: #2563eb;
+    .open-ocr-btn:hover {
+      background: #dcfce7;
+      border-color: #86efac;
     }
 
     .btn {
@@ -482,12 +481,11 @@
       <div class="form-group">
         <label for="originalEssay">初版（英作文）：</label>
         
-        <button type="button" id="btn-trigger-ocr" class="ocr-btn">
-          📷 手書きの写真を撮影・選択して文字起こし
+        <button type="button" id="btn-open-ocr" class="open-ocr-btn">
+          📷 手書き撮影・文字起こしアプリを別画面で開く ➔
         </button>
-        <input type="file" id="imageInput" accept="image/*" style="display:none;">
         
-        <textarea id="originalEssay" rows="5" placeholder="ここに英文を入力してください（上のボタンから写真を撮って文字起こしも可能です）..."></textarea>
+        <textarea id="originalEssay" rows="5" placeholder="ここに英文を入力してください（手書きの場合は上のボタンから文字起こしアプリを開いてペースト可能です）..."></textarea>
       </div>
       <button type="button" id="btn-start-phase1" class="btn">添削スタート (Phase 1へ) ➔</button>
     </div>
@@ -534,7 +532,7 @@
       <div class="essay-ref-title">📝 完成した英文（修正版2・最終版）：</div>
       <div class="essay-ref-box" id="disp-rev2">（未入力）</div>
       <label>🤖 AIからの評価と個別批判的質問：</label>
-      <div class="ai-response" id="res-phase3">AIが解析中...</div>
+      <div class="ai-response" id="res-phase3">AI解析中...</div>
       
       <p style="font-weight: bold; margin-bottom: 12px; font-size: 14px; color: #1e3a8a;">【AIからの質問への回答】</p>
       <div class="form-group">
@@ -605,8 +603,11 @@
 </div>
 
 <script>
-  // 【重要】ご自身のGASウェブアプリURLをここに設定してください
+  // 【設定1】GASのWebアプリURL
   const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxgL9nEtD7jYwrIec15df7qmfT-q-CitGI1Ykxzlx-CMfsvBkobDrt8y6mWtLeT5OqS/exec";
+  
+  // 【設定2】作成する文字起こしアプリ（ocr.html）のURL
+  const OCR_APP_URL = "https://YOUR_OCR_APP_URL_HERE.vercel.app";
 
   function showBannerError(msg) {
     const banner = document.getElementById('alert-banner');
@@ -619,7 +620,7 @@
 
   function getGasUrl() {
     if (!DEFAULT_GAS_URL || DEFAULT_GAS_URL.includes("YOUR_GAS_URL_HERE")) {
-      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。index.htmlのコード内を書き換えてVercelへ再デプロイしてください。");
+      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。");
       throw new Error("No GAS URL Configured");
     }
     return DEFAULT_GAS_URL;
@@ -653,7 +654,7 @@
       try {
         data = JSON.parse(text);
       } catch (pErr) {
-        showBannerError("⚠️ ［通信エラー］GASからJSON以外のレスポンスが返されました。GASのデプロイ権限が「全員（Anyone）」になっているか確認してください。");
+        showBannerError("⚠️ ［通信エラー］GASからJSON以外のレスポンスが返されました。デプロイ設定を確認してください。");
         return { success: false, error: "非JSON形式の応答: " + text.substring(0, 100) };
       }
       
@@ -678,77 +679,26 @@
     if (overlay) overlay.style.display = show ? 'flex' : 'none';
   }
 
-  function triggerImageInput() {
-    const fileInput = document.getElementById('imageInput');
-    if (fileInput) {
-      fileInput.value = null;
-      fileInput.click();
+  // 文字起こしアプリを別画面で開く処理
+  function openOcrApp() {
+    if (!OCR_APP_URL || OCR_APP_URL.includes("YOUR_OCR_APP_URL_HERE")) {
+      alert("⚠️ 文字起こしアプリのURLが設定されていません。index.html内の OCR_APP_URL を書き換えてください。");
+      return;
     }
+    window.open(OCR_APP_URL, 'ocrWindow', 'width=600,height=750,scrollbars=yes,resizable=yes');
   }
 
-  async function handleImageOCR(event) {
-    const file = event && event.target && event.target.files && event.target.files[0];
-    if (!file) return;
-
-    showLoading(true, "📷 画像を最適化＆文字起こし中...");
-
-    try {
-      const base64Image = await compressImageFile(file, 1280, 0.80);
-      const ocrPrompt = "Perform OCR on this handwritten English essay image for high school students. Extract ONLY the English text written in the image. Do NOT include any greetings, labels, or notes. Transcribe the text exactly as written.";
-
-      const res = await callGasBackend({
-        action: "callGeminiAPI",
-        prompt: ocrPrompt,
-        base64ImageData: base64Image,
-        maxTokens: 1500,
-        loadingMsg: "📷 手書き文字を読み取り中..."
-      });
-
-      if (res.success && res.response) {
-        const origInput = document.getElementById('originalEssay');
-        if (origInput) origInput.value = res.response.trim();
-        alert("📷 文字起こしが完了しました！内容をご確認・必要に応じて修正してください。");
-      } else {
-        alert("文字起こし失敗:\n" + (res.error || "文字を読み取れませんでした。もう一度撮影してください。"));
+  // 文字起こしアプリからの自動受取リスナー
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.action === 'sendEssayText') {
+      const essayText = event.data.text;
+      const origInput = document.getElementById('originalEssay');
+      if (origInput && essayText) {
+        origInput.value = essayText;
+        alert("📷 文字起こしアプリから初版の英文が入力されました！");
       }
-    } catch (err) {
-      alert("画像処理エラー: " + err.toString());
-    } finally {
-      showLoading(false);
     }
-  }
-
-  function compressImageFile(file, maxSideLength, quality) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          let width = img.width;
-          let height = img.height;
-          if (width > maxSideLength || height > maxSideLength) {
-            if (width > height) {
-              height = Math.round((height * maxSideLength) / width);
-              width = maxSideLength;
-            } else {
-              width = Math.round((width * maxSideLength) / height);
-              height = maxSideLength;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+  });
 
   function switchMainTab(tab) {
     const secCreate = document.getElementById('section-create');
@@ -1118,8 +1068,7 @@
   }
 
   window.switchMainTab = switchMainTab;
-  window.triggerImageInput = triggerImageInput;
-  window.handleImageOCR = handleImageOCR;
+  window.openOcrApp = openOcrApp;
   window.processPhase1 = processPhase1;
   window.processPhase2 = processPhase2;
   window.processPhase3 = processPhase3;
@@ -1129,7 +1078,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!DEFAULT_GAS_URL || DEFAULT_GAS_URL.includes("YOUR_GAS_URL_HERE")) {
-      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。index.htmlのコード内を書き換えてVercelへ再デプロイしてください。");
+      showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。");
     }
 
     const bind = (id, event, handler) => {
@@ -1145,8 +1094,7 @@
       bind('step-node-' + i, 'click', () => navigateTo(i));
     }
 
-    bind('btn-trigger-ocr', 'click', triggerImageInput);
-    bind('imageInput', 'change', handleImageOCR);
+    bind('btn-open-ocr', 'click', openOcrApp);
     bind('btn-start-phase1', 'click', processPhase1);
     bind('btn-start-phase2', 'click', processPhase2);
     bind('btn-start-phase3', 'click', processPhase3);
