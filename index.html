@@ -567,7 +567,6 @@
       const topic = getVal('topic');
       const limit = getVal('wordLimit');
 
-      // プロンプト改善：甘い評価を厳禁とし、客観的なルーブリック基準で採点させるプロンプト構造
       const promptArr = [
         "Topic: [" + topic + "]",
         "Limit: [" + limit + "]",
@@ -606,7 +605,6 @@
       if (res.success && res.response) {
         const text = res.response;
 
-        // パース処理①：初版12点満点スコアの抽出（厳格採点結果を取得）
         let scoreVal = 8;
         const scoreMatch = text.match(/Initial\s*Score\s*[:=]\s*\*?\*?(\d{1,2})/i) || text.match(/初版.*[:=]\s*(\d{1,2})/i) || text.match(/(\d{1,2})\s*\/\s*12/);
         if (scoreMatch && scoreMatch[1]) {
@@ -615,7 +613,6 @@
         const elP1Score = document.getElementById('val-phase1-score');
         if (elP1Score) elP1Score.innerText = scoreVal + ' / 12';
 
-        // パース処理②：観点別評価表とアドバイス部分の分解（フォールバック安全網設計）
         let rubricText = text;
         let adviceText = "";
 
@@ -778,13 +775,19 @@
     const ans2 = getVal('ans2');
     const ans3 = getVal('ans3');
 
+    // 2ページ目（Phase 1）での初期評価テキスト（存在すれば参照）
+    const phase1RubricEl = document.getElementById('res-phase1-rubric');
+    const phase1Text = phase1RubricEl ? phase1RubricEl.innerText : "";
+
     try {
+      // 修正ポイント：5ページ目でも2ページ目と同じ4観点ルーブリックで「初版」と「修正版2」を比較
       const promptArr = [
-        "以下の学習データから「学びの最終統合レポート」を簡潔に作成してください。",
+        "以下の学習データから「学びの最終統合レポート」を作成してください。",
         "",
         "Topic:[" + topic + "] | Limit:[" + limit + "]",
         "Original:[" + orig + "] | Revised 2:[" + rev2 + "]",
         "Q1:[" + ans1 + "] | Q2:[" + ans2 + "] | Q3:[" + ans3 + "]",
+        "Phase 1 Evaluation Reference: [" + phase1Text.substring(0, 300) + "]",
         "",
         "### 1. Final Integrated Summary",
         "(英語1〜2文で総評)",
@@ -792,11 +795,13 @@
         "(日本語訳1文)",
         "",
         "### 2. 12-Point Rubric Evaluation (Original vs Revised 2)",
-        "| 評価項目 | 初版 (Original) | 修正版2 (Revised 2) | 改善のポイント |",
+        "以下の4観点（①文法・語彙, ②構成・論理, ③表現の自然さ, ④課題への応答 各3点/計12点満点）について、初版と修正版2の評価を比較したMarkdown表を出力してください。初版の評価はPhase 1での評価結果と整合させてください。",
+        "| 評価観点 | 初版 (Original) | 修正版2 (Revised 2) | 改善のポイント |",
         "| :--- | :--- | :--- | :--- |",
-        "| 文法・語彙 | (8文字以内) | (8文字以内) | (8文字以内) |",
-        "| 構成・論理 | (8文字以内) | (8文字以内) | (8文字以内) |",
-        "| 表現の自然さ | (8文字以内) | (8文字以内) | (8文字以内) |",
+        "| 文法・語彙 | X/3 | Y/3 | (8文字以内) |",
+        "| 構成・論理 | X/3 | Y/3 | (8文字以内) |",
+        "| 表現の自然さ | X/3 | Y/3 | (8文字以内) |",
+        "| 課題への応答 | X/3 | Y/3 | (8文字以内) |",
         "",
         "### 3. Model Essay (模範解答と和訳)",
         "【模範英文】",
@@ -813,7 +818,7 @@
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
         prompt: prompt, 
-        maxTokens: 1800, 
+        maxTokens: 2200, 
         loadingMsg: "🚀 統合レポートを生成中..." 
       });
 
@@ -856,7 +861,6 @@
           saveStatusEl.innerText = "⏳ スプレッドシートDBへ学びの記録を保存中...";
         }
 
-        // GAS側の .replace() 処理エラー回避のため数字文字列（String型）化を維持
         const initStr = String(initVal);
         const impStr = String(impVal);
         const totalStr = String(totalVal);
