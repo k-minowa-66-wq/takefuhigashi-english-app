@@ -579,7 +579,7 @@
       const promptArr = [
         "生徒の修正版1: [" + rev1 + "]",
         "",
-        "不自然な表現を【3項目】抽出し、指定のMarkdown表で出力してください。",
+        "不自然な表現を【3項目】抽出し、指定のMarkdown表で出力してください。各項目は途中で切れずに完了できるよう要点を簡潔・明瞭に記述してください。",
         "",
         "### 1. 自己修正の確認",
         "（1〜2行でコメント）",
@@ -590,10 +590,11 @@
       ];
       const prompt = promptArr.join("\n");
 
+      // 修正ポイント①: 表形式出力で途切れないよう maxTokens を 2500 に拡張
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
         prompt: prompt, 
-        maxTokens: 1500, 
+        maxTokens: 2500, 
         loadingMsg: "⚡ 改善案（Option A/B）を生成中..." 
       });
 
@@ -763,6 +764,7 @@
 
         navigateTo(5);
 
+        // 修正ポイント②: スプレッドシート側の「612」「33」化を防ぐため、純粋な数値（initVal, impVal）のみを送信
         callGasBackend({
           action: "saveLearningLog",
           logData: {
@@ -770,8 +772,8 @@
             userName: name, userEmail: email, topic: topic, wordLimit: limit,
             originalEssay: orig, revised1: rev1, revised2: rev2,
             interviewAnswers: [ans1, ans2, ans3],
-            initialScore: initVal + " / 12 pts",
-            improvementScore: impVal + " / 3 pts",
+            initialScore: initVal,
+            improvementScore: impVal,
             finalReportText: res.response
           }
         });
