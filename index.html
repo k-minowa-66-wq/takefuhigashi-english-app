@@ -256,7 +256,7 @@
 
   <div id="section-history" style="display:none;" class="card">
     <h2>📜 あなたの学習ポートフォリオ (15点評価)</h2>
-    <div id="history-list"><p style="text-align: center; color: #64748b; padding: 20px;">1ページ目でメールアドレスを入力して検索してください。</p></div>
+    <div id="history-list"><p style="text-align: center; color: #64748b; padding: 20px;">1ページ目でメールアドレスを入力してから検索してください。</p></div>
     <button type="button" id="btn-back-from-history" class="btn btn-secondary" style="margin-top:16px;">📝 英作文作成画面（ホーム）に戻る</button>
   </div>
 
@@ -269,6 +269,7 @@
 </div>
 
 <script>
+  // 【重要】ご自身のGASウェブアプリURLおよび文字起こしアプリURLに書き換えてください
   const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyyHIVICe4u8myL1mx5N8ImQ_Ziogk0T5Fe7s9m3DahIC98anQtjaNz327kJpnirG-S/exec";
   const OCR_APP_URL = "https://ocr-app-d23c.vercel.app";
 
@@ -291,7 +292,11 @@
 
   async function callGasBackend(actionData) {
     let url = "";
-    try { url = getGasUrl(); } catch (e) { return { success: false, error: e.message }; }
+    try { 
+      url = getGasUrl(); 
+    } catch (e) { 
+      return { success: false, error: e.message }; 
+    }
 
     showLoading(true, actionData.loadingMsg || "AIが解析中...");
 
@@ -314,7 +319,9 @@
         clearTimeout(timeoutId);
         const text = await res.text();
         let data = {};
-        try { data = JSON.parse(text); } catch(pErr) {
+        try { 
+          data = JSON.parse(text); 
+        } catch(pErr) {
           throw new Error("非JSON形式の応答: " + text.substring(0, 100));
         }
 
@@ -409,10 +416,10 @@
         } else if (i === stepNum) {
           node.classList.add('active');
           const badge = node.querySelector('.step-badge');
-          if (badge) badge.innerText = i;
+          if (badge) badge.innerText = String(i);
         } else {
           const badge = node.querySelector('.step-badge');
-          if (badge) badge.innerText = i;
+          if (badge) badge.innerText = String(i);
         }
       }
     }
@@ -436,6 +443,11 @@
     if (dispRev2) dispRev2.innerText = (elRev2 && elRev2.value) ? elRev2.value : "（未入力）";
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
   function formatAiResponseText(text) {
@@ -484,11 +496,6 @@
   function setAiResponseContent(elementId, text) {
     const el = document.getElementById(elementId);
     if (el) el.innerHTML = formatAiResponseText(text);
-  }
-
-  function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
   async function processPhase1() {
@@ -660,7 +667,7 @@
 
         const headerEl = document.getElementById('student-report-header');
         if (headerEl) {
-          headerEl.innerText = `👤 ${grade} ${userClass} ${num}番 ${name}（${email}）`;
+          headerEl.innerText = "👤 " + grade + " " + userClass + " " + num + "番 " + name + "（" + email + "）";
         }
 
         let initVal = 8;
