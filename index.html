@@ -67,6 +67,7 @@
     .score-hero-card.total { background: linear-gradient(135deg, #059669, #047857); }
     .score-hero-card .label { font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 20px; display: inline-block; }
     .score-hero-card .score { font-size: 30px; font-weight: 900; margin: 4px 0; }
+    .encouragement-banner { background: #eff6ff; border-left: 4px solid #1d4ed8; padding: 12px 16px; border-radius: 8px; font-weight: bold; color: #1e3a8a; margin: 16px 0; font-size: 14px; text-align: center; }
     .timeline-item { background: #f1f5f9; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #059669; }
     .loading-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 10000; }
     .loading-box { background: #ffffff; padding: 24px 32px; border-radius: 16px; text-align: center; font-weight: bold; color: #1e293b; width: 85%; max-width: 400px; }
@@ -155,16 +156,37 @@
       <button type="button" id="btn-start-phase1" class="btn">添削スタート (Phase 1へ) ➔</button>
     </div>
 
-    <!-- 2ページ目 -->
+    <!-- 2ページ目：得点カード・4観点別評価・指定メッセージ・改善アドバイス表示 -->
     <div id="page-2" class="page card">
       <h2>2. 初期評価と自力発見</h2>
       <div class="essay-ref-title">📝 あなたの初版英文：</div>
       <div class="essay-ref-box" id="disp-orig">（未入力）</div>
-      <label>🤖 AIからの気づき・アドバイス：</label>
-      <div class="ai-response" id="res-phase1">AIが解析中...</div>
-      <div class="form-group">
+
+      <!-- 12点満点 得点カード -->
+      <div class="score-hero-container" style="margin-top: 16px; margin-bottom: 16px;">
+        <div class="score-hero-card" style="background: linear-gradient(135deg, #1d4ed8, #1e40af);">
+          <span class="label">初版スコア評価</span>
+          <div class="score" id="val-phase1-score">-- / 12</div>
+          <p style="font-size: 11px;">12点満点（4観点ルーブリック評価）</p>
+        </div>
+      </div>
+
+      <!-- 4観点ごとの小計および理由 -->
+      <label>📊 4観点ごとの評価と理由：</label>
+      <div class="ai-response" id="res-phase1-rubric">AIが評価中...</div>
+
+      <!-- 追加要求メッセージ：得点カードと各観点小計・理由の下に配置 -->
+      <div class="encouragement-banner">
+        表現や内容を改善して、よりよい英作文にしてみましょう！
+      </div>
+
+      <!-- 改善提案・アドバイス -->
+      <label>🤖 自力修正のためのアドバイス・ヒント：</label>
+      <div class="ai-response" id="res-phase1-advice">AIが解析中...</div>
+
+      <div class="form-group" style="margin-top: 20px;">
         <label for="revised1">修正版1（Revised Version 1）を入力：</label>
-        <textarea id="revised1" rows="5" placeholder="問いかけを参考に修正した英文を入力してください..."></textarea>
+        <textarea id="revised1" rows="5" placeholder="アドバイスを参考に修正した英文を入力してください..."></textarea>
       </div>
       <div class="btn-group-3">
         <button type="button" id="btn-back-1" class="btn-secondary">← 前に戻る</button>
@@ -549,19 +571,77 @@
         "Topic: [" + topic + "]",
         "Limit: [" + limit + "]",
         "Essay: [" + orig + "]",
-        "生徒の英文に対する【自力修正を促すアドバイス・問いかけ】を【最大3項目まで】箇条書きで出力してください。箇条書きのみで正解案は絶対に出力しないでください。"
+        "",
+        "以下の初版英文に対して、4観点（1.文法・語彙, 2.構成・論理, 3.表現の自然さ, 4.課題への応答 各3点/計12点満点）で初期評価を行い、指定のフォーマットで正確に出力してください。また、正解案は絶対に出さずに自力修正を促すアドバイス（最大3項目）を出力してください。",
+        "",
+        "### 1. 初版スコア評価",
+        "Initial Score: X / 12 pts",
+        "",
+        "| 観点 | 得点 | 評価理由 (1文で簡潔に記述) |",
+        "| :--- | :--- | :--- |",
+        "| 文法・語彙 | X/3 | 理由文 |",
+        "| 構成・論理 | X/3 | 理由文 |",
+        "| 表現の自然さ | X/3 | 理由文 |",
+        "| 課題への応答 | X/3 | 理由文 |",
+        "",
+        "### 2. 自力修正を促すアドバイス",
+        "・アドバイス1 (ヒントや問いかけ)",
+        "・アドバイス2",
+        "・アドバイス3"
       ];
       const prompt = promptArr.join("\n");
 
+      // 情報量増加に伴い途切れ防止のため maxTokens を 2500 に拡張
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
         prompt: prompt, 
-        maxTokens: 1500, 
-        loadingMsg: "⚡ AIが初版英文を解析中..." 
+        maxTokens: 2500, 
+        loadingMsg: "⚡ 初期評価と観点別スコアを解析中..." 
       });
 
       if (res.success && res.response) {
-        setAiResponseContent('res-phase1', res.response);
+        const text = res.response;
+
+        // パース処理①：初版12点満点スコアの抽出
+        let scoreVal = 8;
+        const scoreMatch = text.match(/Initial\s*Score\s*[:=]\s*\*?\*?(\d{1,2})/i) || text.match(/初版.*[:=]\s*(\d{1,2})/i) || text.match(/(\d{1,2})\s*\/\s*12/);
+        if (scoreMatch && scoreMatch[1]) {
+          scoreVal = parseInt(scoreMatch[1], 10);
+        }
+        const elP1Score = document.getElementById('val-phase1-score');
+        if (elP1Score) elP1Score.innerText = scoreVal + ' / 12';
+
+        // パース処理②：観点別評価表とアドバイス部分の分解（フォールバック安全網設計）
+        let rubricText = text;
+        let adviceText = "";
+
+        const splitKey = "### 2. 自力修正";
+        const splitIdx = text.indexOf(splitKey);
+        if (splitIdx !== -1) {
+          rubricText = text.substring(0, splitIdx).trim();
+          adviceText = text.substring(splitIdx).trim();
+        } else {
+          const lines = text.split("\n");
+          const rLines = [];
+          const aLines = [];
+          let isAdvice = false;
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes("・") || lines[i].includes("- ") || lines[i].includes("アドバイス")) {
+              isAdvice = true;
+            }
+            if (isAdvice) {
+              aLines.push(lines[i]);
+            } else {
+              rLines.push(lines[i]);
+            }
+          }
+          rubricText = rLines.join("\n");
+          adviceText = aLines.join("\n");
+        }
+
+        setAiResponseContent('res-phase1-rubric', rubricText || "観点別評価を生成しました。");
+        setAiResponseContent('res-phase1-advice', adviceText || text);
+
         navigateTo(2);
       } else {
         alert("AI解析エラー: " + (res.error || "通信に失敗しました。もう一度お試しください。"));
@@ -772,7 +852,7 @@
           saveStatusEl.innerText = "⏳ スプレッドシートDBへ学びの記録を保存中...";
         }
 
-        // GAS側の .replace() 処理と型チェックを完全クリアするための「数字のみの文字列（String型）」生成
+        // GAS側の .replace() 処理エラー回避のため数字文字列（String型）化を維持
         const initStr = String(initVal);
         const impStr = String(impVal);
         const totalStr = String(totalVal);
@@ -831,7 +911,7 @@
       if (!email || email.trim() === "") {
         const listDiv = document.getElementById('history-list');
         if (listDiv) {
-          listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">1ページ目でメールアドレスを入力してから切り替えてください。</p>';
+          listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">1ページ目でメールアドレスを入力してから検索してください。</p>';
         }
         return;
       }
