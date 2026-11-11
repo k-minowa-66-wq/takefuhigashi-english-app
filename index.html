@@ -764,15 +764,18 @@
         if (elImp) elImp.innerText = impVal + ' / 3';
         if (elTotal) elTotal.innerText = totalVal + ' / 15';
 
-        // 5ページ目へ移行
         navigateTo(5);
 
-        // スプレッドシートDB保存処理（動的ステータス更新＆完全互換ペロード送信）
         const saveStatusEl = document.getElementById('save-status');
         if (saveStatusEl) {
           saveStatusEl.style.color = "var(--color-primary)";
           saveStatusEl.innerText = "⏳ スプレッドシートDBへ学びの記録を保存中...";
         }
+
+        // GAS側の .replace() 処理と型チェックを完全クリアするための「数字のみの文字列（String型）」生成
+        const initStr = String(initVal);
+        const impStr = String(impVal);
+        const totalStr = String(totalVal);
 
         const logPayload = {
           userGrade: grade,
@@ -789,19 +792,18 @@
           ans1: ans1,
           ans2: ans2,
           ans3: ans3,
-          initialScore: initVal,
-          improvementScore: impVal,
-          initScore: initVal,
-          impScore: impVal,
-          totalScore: totalVal,
+          initialScore: initStr,
+          improvementScore: impStr,
+          initScore: initStr,
+          impScore: impStr,
+          totalScore: totalStr,
           finalReportText: res.response
         };
 
-        // await で完了までしっかり同期処理してエラー検知
         const saveRes = await callGasBackend({
           action: "saveLearningLog",
           logData: logPayload,
-          ...logPayload, // トップレベルにもプロパティを展開してGAS側の実装差分を吸収
+          ...logPayload,
           loadingMsg: "💾 成果データを保存中..."
         });
 
