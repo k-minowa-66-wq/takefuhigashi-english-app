@@ -670,7 +670,7 @@
       lbl2.innerText = (q2Match && q2Match[1]) ? "Q2: " + q2Match[1].trim() : "Q2: AIから提案された他の表現を選ばなかった理由は何ですか？";
     }
     if (lbl3) {
-      lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
+      lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: " + q3Match[1].trim() : "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
     }
   }
 
