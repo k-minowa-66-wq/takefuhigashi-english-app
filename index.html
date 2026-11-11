@@ -273,6 +273,11 @@
   const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyyHIVICe4u8myL1mx5N8ImQ_Ziogk0T5Fe7s9m3DahIC98anQtjaNz327kJpnirG-S/exec";
   const OCR_APP_URL = "https://ocr-app-d23c.vercel.app";
 
+  function getVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
   function showBannerError(msg) {
     const banner = document.getElementById('alert-banner');
     if (banner) {
@@ -301,12 +306,12 @@
     showLoading(true, actionData.loadingMsg || "AIが解析中...");
 
     const jitter = Math.floor(Math.random() * 1300) + 200;
-    await new Promise(r => setTimeout(r, jitter));
+    await new Promise(function(r) { setTimeout(r, jitter); });
 
     let maxRetries = 2;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 45000);
+      const timeoutId = setTimeout(function() { controller.abort(); }, 45000);
 
       try {
         const res = await fetch(url, {
@@ -331,7 +336,7 @@
         }
 
         if (attempt < maxRetries) {
-          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+          await new Promise(function(r) { setTimeout(r, 2000 * (attempt + 1)); });
           continue;
         }
 
@@ -341,11 +346,11 @@
       } catch (err) {
         clearTimeout(timeoutId);
         if (attempt < maxRetries) {
-          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+          await new Promise(function(r) { setTimeout(r, 2000 * (attempt + 1)); });
           continue;
         }
         showLoading(false);
-        const errMsg = err.name === 'AbortError' ? "通信タイムアウト" : err.toString();
+        const errMsg = (err.name === 'AbortError') ? "通信タイムアウト" : err.toString();
         showBannerError("⚠️ 通信エラー: " + errMsg);
         return { success: false, error: errMsg };
       }
@@ -355,8 +360,12 @@
   function showLoading(show, msg) {
     const overlay = document.getElementById('loading');
     const msgEl = document.getElementById('loading-msg');
-    if (msg) msgEl.innerText = msg;
-    if (overlay) overlay.style.display = show ? 'flex' : 'none';
+    if (msgEl && msg) {
+      msgEl.innerText = msg;
+    }
+    if (overlay) {
+      overlay.style.display = show ? 'flex' : 'none';
+    }
   }
 
   function openOcrApp() {
@@ -367,7 +376,7 @@
     window.open(OCR_APP_URL, 'ocrWindow', 'width=600,height=750,scrollbars=yes,resizable=yes');
   }
 
-  window.addEventListener('message', (event) => {
+  window.addEventListener('message', function(event) {
     if (event.data && event.data.action === 'sendEssayText') {
       const essayText = event.data.text;
       const origInput = document.getElementById('originalEssay');
@@ -384,8 +393,8 @@
     const tabCreate = document.getElementById('tab-create');
     const tabHistory = document.getElementById('tab-history');
 
-    if (secCreate) secCreate.style.display = tab === 'create' ? 'block' : 'none';
-    if (secHistory) secHistory.style.display = tab === 'history' ? 'block' : 'none';
+    if (secCreate) secCreate.style.display = (tab === 'create') ? 'block' : 'none';
+    if (secHistory) secHistory.style.display = (tab === 'history') ? 'block' : 'none';
     if (tabCreate) tabCreate.classList.toggle('active', tab === 'create');
     if (tabHistory) tabHistory.classList.toggle('active', tab === 'history');
 
@@ -409,16 +418,14 @@
       const node = document.getElementById('step-node-' + i);
       if (node) {
         node.classList.remove('active', 'completed');
+        const badge = node.querySelector('.step-badge');
         if (i < stepNum) {
           node.classList.add('completed');
-          const badge = node.querySelector('.step-badge');
           if (badge) badge.innerText = '✓';
         } else if (i === stepNum) {
           node.classList.add('active');
-          const badge = node.querySelector('.step-badge');
           if (badge) badge.innerText = String(i);
         } else {
-          const badge = node.querySelector('.step-badge');
           if (badge) badge.innerText = String(i);
         }
       }
@@ -428,91 +435,131 @@
     if (targetPage) targetPage.classList.add('active');
 
     const progressLine = document.getElementById('progress-line');
-    if (progressLine) progressLine.style.width = ((stepNum - 1) / 4 * 100) + '%';
+    if (progressLine) {
+      progressLine.style.width = String((stepNum - 1) / 4 * 100) + '%';
+    }
 
-    const elOrig = document.getElementById('originalEssay');
-    const elRev1 = document.getElementById('revised1');
-    const elRev2 = document.getElementById('revised2');
+    const elOrig = getVal('originalEssay');
+    const elRev1 = getVal('revised1');
+    const elRev2 = getVal('revised2');
 
     const dispOrig = document.getElementById('disp-orig');
     const dispRev1 = document.getElementById('disp-rev1');
     const dispRev2 = document.getElementById('disp-rev2');
 
-    if (dispOrig) dispOrig.innerText = (elOrig && elOrig.value) ? elOrig.value : "（未入力）";
-    if (dispRev1) dispRev1.innerText = (elRev1 && elRev1.value) ? elRev1.value : "（未入力）";
-    if (dispRev2) dispRev2.innerText = (elRev2 && elRev2.value) ? elRev2.value : "（未入力）";
+    if (dispOrig) dispOrig.innerText = elOrig ? elOrig : "（未入力）";
+    if (dispRev1) dispRev1.innerText = elRev1 ? elRev1 : "（未入力）";
+    if (dispRev2) dispRev2.innerText = elRev2 ? elRev2 : "（未入力）";
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function escapeHtml(str) {
     if (!str) return "";
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function formatAiResponseText(text) {
     if (!text) return "";
-    const lines = text.split('\n');
+    const lines = String(text).split("\n");
     let htmlResult = [];
     let inTable = false;
     let tableBuffer = [];
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim();
-      if (line.startsWith('|')) {
-        if (line.includes('---')) continue;
-        if (!line.endsWith('|')) line += ' |';
-        const cells = line.split('|').slice(1, -1).map(c => escapeHtml(c.trim()));
+      if (line.indexOf('|') === 0) {
+        if (line.indexOf('---') !== -1) continue;
+        if (line.lastIndexOf('|') !== line.length - 1) {
+          line += ' |';
+        }
+        const rawCells = line.split('|').slice(1, -1);
+        let cells = [];
+        for (let c = 0; c < rawCells.length; c++) {
+          cells.push(escapeHtml(rawCells[c].trim()));
+        }
+
         if (cells.length > 1) {
           if (!inTable) {
             inTable = true;
             tableBuffer = ['<div class="table-container"><table class="ai-table"><thead><tr>'];
-            cells.forEach(c => tableBuffer.push('<th>' + c + '</th>'));
+            for (let h = 0; h < cells.length; h++) {
+              tableBuffer.push('<th>' + cells[h] + '</th>');
+            }
             tableBuffer.push('</tr></thead><tbody>');
           } else {
             tableBuffer.push('<tr>');
-            cells.forEach(c => tableBuffer.push('<td>' + c + '</td>'));
+            for (let d = 0; d < cells.length; d++) {
+              tableBuffer.push('<td>' + cells[d] + '</td>');
+            }
             tableBuffer.push('</tr>');
           }
           continue;
         }
       }
+
       if (inTable) {
         inTable = false;
         tableBuffer.push('</tbody></table></div>');
         htmlResult.push(tableBuffer.join(''));
         tableBuffer = [];
       }
-      if (line !== '') htmlResult.push('<div>' + escapeHtml(line) + '</div>');
-      else htmlResult.push('<div style="height:8px;"></div>');
+
+      if (line !== '') {
+        htmlResult.push('<div>' + escapeHtml(line) + '</div>');
+      } else {
+        htmlResult.push('<div style="height:8px;"></div>');
+      }
     }
+
     if (inTable) {
       tableBuffer.push('</tbody></table></div>');
       htmlResult.push(tableBuffer.join(''));
     }
+
     return htmlResult.join('');
   }
 
   function setAiResponseContent(elementId, text) {
     const el = document.getElementById(elementId);
-    if (el) el.innerHTML = formatAiResponseText(text);
+    if (el) {
+      el.innerHTML = formatAiResponseText(text);
+    }
   }
 
   async function processPhase1() {
-    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
-    const name = document.getElementById('userName') ? document.getElementById('userName').value : "";
-    const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+    const orig = getVal('originalEssay');
+    const name = getVal('userName');
+    const email = getVal('userEmail');
 
     if (!name || name.trim() === "") return alert("氏名を入力してください。");
     if (!email || email.trim() === "") return alert("メールアドレスを入力してください。");
     if (!orig || orig.trim() === "") return alert("初版の英文を入力してください。");
 
     try {
-      const topic = document.getElementById('topic') ? document.getElementById('topic').value : "";
-      const limit = document.getElementById('wordLimit') ? document.getElementById('wordLimit').value : "";
-      const prompt = "Topic:[" + topic + "]\nLimit:[" + limit + "]\nEssay:[" + orig + "]\n生徒の英文に対する【自力修正を促すアドバイス・問いかけ】を【最大3項目まで】箇条書きで出力してください。箇条書きのみで正解案は絶対に出力しないでください。";
+      const topic = getVal('topic');
+      const limit = getVal('wordLimit');
 
-      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ AIが初版英文を解析中..." });
+      const promptArr = [
+        "Topic: [" + topic + "]",
+        "Limit: [" + limit + "]",
+        "Essay: [" + orig + "]",
+        "生徒の英文に対する【自力修正を促すアドバイス・問いかけ】を【最大3項目まで】箇条書きで出力してください。箇条書きのみで正解案は絶対に出力しないでください。"
+      ];
+      const prompt = promptArr.join("\n");
+
+      const res = await callGasBackend({ 
+        action: "callGeminiAPI", 
+        prompt: prompt, 
+        maxTokens: 1500, 
+        loadingMsg: "⚡ AIが初版英文を解析中..." 
+      });
+
       if (res.success && res.response) {
         setAiResponseContent('res-phase1', res.response);
         navigateTo(2);
@@ -525,12 +572,12 @@
   }
 
   async function processPhase2() {
-    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
+    const rev1 = getVal('revised1');
     if (!rev1 || rev1.trim() === "") return alert("修正版1を入力してください。");
 
     try {
-      const prompt = [
-        "生徒の修正版1:[" + rev1 + "]",
+      const promptArr = [
+        "生徒の修正版1: [" + rev1 + "]",
         "",
         "不自然な表現を【3項目】抽出し、指定のMarkdown表で出力してください。",
         "",
@@ -540,9 +587,16 @@
         "### 2. 抽出表現と改善案（Option A / Option B）",
         "| 抽出された表現 (原文) | 不自然な理由 | Option A (シンプル・確実) | Option B (自然・表現力UP) | ２つのOptionsの違い |",
         "| :--- | :--- | :--- | :--- | :--- |"
-      ].join("\n");
+      ];
+      const prompt = promptArr.join("\n");
 
-      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ 改善案（Option A/B）を生成中..." });
+      const res = await callGasBackend({ 
+        action: "callGeminiAPI", 
+        prompt: prompt, 
+        maxTokens: 1500, 
+        loadingMsg: "⚡ 改善案（Option A/B）を生成中..." 
+      });
+
       if (res.success && res.response) {
         setAiResponseContent('res-phase2', res.response);
         navigateTo(3);
@@ -555,14 +609,14 @@
   }
 
   async function processPhase3() {
-    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
-    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
-    const rev2 = document.getElementById('revised2') ? document.getElementById('revised2').value : "";
+    const orig = getVal('originalEssay');
+    const rev1 = getVal('revised1');
+    const rev2 = getVal('revised2');
 
     if (!rev2 || rev2.trim() === "") return alert("修正版2を入力してください。");
 
     try {
-      const prompt = [
+      const promptArr = [
         "生徒の英作文の変遷：",
         "・【初版】: " + orig,
         "・【修正版1】: " + rev1,
@@ -577,9 +631,16 @@
         "【Q1】(初版から修正版2への具体的変更に対する質問)",
         "【Q2】(提案された他の表現を選ばなかった理由を突く質問)",
         "【Q3】(あえて修正せず残した部分に対する質問)"
-      ].join("\n");
+      ];
+      const prompt = promptArr.join("\n");
 
-      const res = await callGasBackend({ action: "callGeminiAPI", prompt: prompt, maxTokens: 1500, loadingMsg: "⚡ 振り返り質問を生成中..." });
+      const res = await callGasBackend({ 
+        action: "callGeminiAPI", 
+        prompt: prompt, 
+        maxTokens: 1500, 
+        loadingMsg: "⚡ 振り返り質問を生成中..." 
+      });
+
       if (res.success && res.response) {
         setAiResponseContent('res-phase3', res.response);
         updateInterviewLabels(res.response);
@@ -602,30 +663,36 @@
     const lbl2 = document.getElementById('lbl-ans2');
     const lbl3 = document.getElementById('lbl-ans3');
 
-    if (lbl1) lbl1.innerText = (q1Match && q1Match[1]) ? "Q1: " + q1Match[1].trim() : "Q1: 初版から修正版でその表現に変更した理由は何ですか？";
-    if (lbl2) lbl2.innerText = (q2Match && q2Match[1]) ? "Q2: " + q2Match[1].trim() : "Q2: AIから提案された他の表現を選ばなかった理由は何ですか？";
-    if (lbl3) lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
+    if (lbl1) {
+      lbl1.innerText = (q1Match && q1Match[1]) ? "Q1: " + q1Match[1].trim() : "Q1: 初版から修正版でその表現に変更した理由は何ですか？";
+    }
+    if (lbl2) {
+      lbl2.innerText = (q2Match && q2Match[1]) ? "Q2: " + q2Match[1].trim() : "Q2: AIから提案された他の表現を選ばなかった理由は何ですか？";
+    }
+    if (lbl3) {
+      lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
+    }
   }
 
   async function processPhase4() {
-    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
-    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
-    const rev2 = document.getElementById('revised2') ? document.getElementById('revised2').value : "";
+    const orig = getVal('originalEssay');
+    const rev1 = getVal('revised1');
+    const rev2 = getVal('revised2');
 
-    const grade = document.getElementById('userGrade') ? document.getElementById('userGrade').value : "";
-    const userClass = document.getElementById('userClass') ? document.getElementById('userClass').value : "";
-    const num = document.getElementById('userNumber') ? document.getElementById('userNumber').value : "";
-    const name = document.getElementById('userName') ? document.getElementById('userName').value : "";
-    const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+    const grade = getVal('userGrade');
+    const userClass = getVal('userClass');
+    const num = getVal('userNumber');
+    const name = getVal('userName');
+    const email = getVal('userEmail');
 
-    const topic = document.getElementById('topic') ? document.getElementById('topic').value : "";
-    const limit = document.getElementById('wordLimit') ? document.getElementById('wordLimit').value : "";
-    const ans1 = document.getElementById('ans1') ? document.getElementById('ans1').value : "";
-    const ans2 = document.getElementById('ans2') ? document.getElementById('ans2').value : "";
-    const ans3 = document.getElementById('ans3') ? document.getElementById('ans3').value : "";
+    const topic = getVal('topic');
+    const limit = getVal('wordLimit');
+    const ans1 = getVal('ans1');
+    const ans2 = getVal('ans2');
+    const ans3 = getVal('ans3');
 
     try {
-      const prompt = [
+      const promptArr = [
         "以下の学習データから「学びの最終統合レポート」を簡潔に作成してください。",
         "",
         "Topic:[" + topic + "] | Limit:[" + limit + "]",
@@ -653,7 +720,8 @@
         "### 4. Score Summary",
         "Initial Score: X / 12 pts",
         "Improvement Evaluation: Y / 3 pts"
-      ].join("\n");
+      ];
+      const prompt = promptArr.join("\n");
 
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
@@ -717,10 +785,12 @@
 
   async function loadHistory() {
     try {
-      const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+      const email = getVal('userEmail');
       if (!email || email.trim() === "") {
         const listDiv = document.getElementById('history-list');
-        if (listDiv) listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">1ページ目でメールアドレスを入力してから切り替えてください。</p>';
+        if (listDiv) {
+          listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">1ページ目でメールアドレスを入力してから切り替えてください。</p>';
+        }
         return;
       }
 
@@ -729,18 +799,17 @@
       if (!listDiv) return;
 
       if (res.success && res.logs && res.logs.length > 0) {
-        let html = '';
-        res.logs.forEach(log => {
-          html += '<div class="timeline-item">' +
-            '<div style="font-size:12px; color:#64748b;">📅 ' + log.timestamp + ' | 生徒: ' + escapeHtml(log.userGrade) + ' ' + escapeHtml(log.userClass) + ' ' + escapeHtml(log.userNumber) + '番 ' + escapeHtml(log.userName) + '</div>' +
-            '<div style="font-weight:bold; font-size:15px; margin:4px 0; color:#1e293b;">課題: ' + escapeHtml(log.topic) + '</div>' +
-            '<div style="font-size:13px; color:#1d4ed8; font-weight:bold; margin-bottom:6px;">' +
-              '🏆 トータル（15点満点）: ' + log.totalScore + ' / 15点 （初版:' + log.initScore + '点 + 改善:' + log.impScore + '点）' +
-            '</div>' +
-            '<div style="font-size:12px; color:#334155; margin-bottom:4px;"><b>最終版(Revised 2):</b> ' + escapeHtml(log.revised2) + '</div>' +
-          '</div>';
-        });
-        listDiv.innerHTML = html;
+        let htmlParts = [];
+        for (let i = 0; i < res.logs.length; i++) {
+          const log = res.logs[i];
+          htmlParts.push('<div class="timeline-item">');
+          htmlParts.push('<div style="font-size:12px; color:#64748b;">📅 ' + escapeHtml(log.timestamp) + ' | 生徒: ' + escapeHtml(log.userGrade) + ' ' + escapeHtml(log.userClass) + ' ' + escapeHtml(log.userNumber) + '番 ' + escapeHtml(log.userName) + '</div>');
+          htmlParts.push('<div style="font-weight:bold; font-size:15px; margin:4px 0; color:#1e293b;">課題: ' + escapeHtml(log.topic) + '</div>');
+          htmlParts.push('<div style="font-size:13px; color:#1d4ed8; font-weight:bold; margin-bottom:6px;">🏆 トータル（15点満点）: ' + escapeHtml(log.totalScore) + ' / 15点 （初版:' + escapeHtml(log.initScore) + '点 + 改善:' + escapeHtml(log.impScore) + '点）</div>');
+          htmlParts.push('<div style="font-size:12px; color:#334155; margin-bottom:4px;"><b>最終版(Revised 2):</b> ' + escapeHtml(log.revised2) + '</div>');
+          htmlParts.push('</div>');
+        }
+        listDiv.innerHTML = htmlParts.join('');
       } else {
         listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">保存された学習履歴がありません。</p>';
       }
@@ -758,23 +827,27 @@
   window.navigateTo = navigateTo;
   window.goHome = goHome;
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     if (!DEFAULT_GAS_URL || DEFAULT_GAS_URL.includes("YOUR_GAS_URL_HERE")) {
       showBannerError("⚠️ ［設定エラー］「DEFAULT_GAS_URL」にご自身のGASデプロイURLが設定されていません。");
     }
 
-    const bind = (id, event, handler) => {
+    function bind(id, event, handler) {
       const el = document.getElementById(id);
-      if (el) el.addEventListener(event, handler);
-    };
-
-    bind('tab-create', 'click', () => switchMainTab('create'));
-    bind('tab-history', 'click', () => switchMainTab('history'));
-    bind('btn-back-from-history', 'click', () => switchMainTab('create'));
-
-    for (let i = 1; i <= 5; i++) {
-      bind('step-node-' + i, 'click', () => navigateTo(i));
+      if (el) {
+        el.addEventListener(event, handler);
+      }
     }
+
+    bind('tab-create', 'click', function() { switchMainTab('create'); });
+    bind('tab-history', 'click', function() { switchMainTab('history'); });
+    bind('btn-back-from-history', 'click', function() { switchMainTab('create'); });
+
+    bind('step-node-1', 'click', function() { navigateTo(1); });
+    bind('step-node-2', 'click', function() { navigateTo(2); });
+    bind('step-node-3', 'click', function() { navigateTo(3); });
+    bind('step-node-4', 'click', function() { navigateTo(4); });
+    bind('step-node-5', 'click', function() { navigateTo(5); });
 
     bind('btn-open-ocr', 'click', openOcrApp);
     bind('btn-start-phase1', 'click', processPhase1);
@@ -782,10 +855,10 @@
     bind('btn-start-phase3', 'click', processPhase3);
     bind('btn-start-phase4', 'click', processPhase4);
 
-    bind('btn-back-1', 'click', () => navigateTo(1));
-    bind('btn-back-2', 'click', () => navigateTo(2));
-    bind('btn-back-3', 'click', () => navigateTo(3));
-    bind('btn-back-4', 'click', () => navigateTo(4));
+    bind('btn-back-1', 'click', function() { navigateTo(1); });
+    bind('btn-back-2', 'click', function() { navigateTo(2); });
+    bind('btn-back-3', 'click', function() { navigateTo(3); });
+    bind('btn-back-4', 'click', function() { navigateTo(4); });
 
     bind('btn-home-2', 'click', goHome);
     bind('btn-home-3', 'click', goHome);
