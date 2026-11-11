@@ -243,8 +243,8 @@
         <h2>学びの最終統合レポート</h2>
         <div id="student-report-header" style="font-size:13px; font-weight:bold; color:#1e3a8a; margin-bottom:12px; background:#eff6ff; padding:8px 12px; border-radius:6px;"></div>
         <div class="ai-response" id="res-phase4">統合レポートを出力中...</div>
-        <div id="save-status" style="font-size: 12px; color: var(--color-success); font-weight: bold; text-align: center; margin-bottom: 12px;">
-          💾 スプレッドシートDBに15点満点で保存完了！
+        <div id="save-status" style="font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 12px; color: var(--color-primary);">
+          ⏳ スプレッドシートDBへ学びの記録を保存中...
         </div>
         <div class="btn-group-3">
           <button type="button" id="btn-back-4" class="btn-secondary">← 前の画面に戻る</button>
@@ -590,7 +590,6 @@
       ];
       const prompt = promptArr.join("\n");
 
-      // 修正ポイント①: 表形式出力で途切れないよう maxTokens を 2500 に拡張
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
         prompt: prompt, 
@@ -671,7 +670,10 @@
       lbl2.innerText = (q2Match && q2Match[1]) ? "Q2: " + q2Match[1].trim() : "Q2: AIから提案された他の表現を選ばなかった理由は何ですか？";
     }
     if (lbl3) {
-      lbl3.innerText = (q3Match && q3Match[1]) ? "Q3: " + q3Match[1].trim() : "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
+      lbl3.innerText =
+        (q3Match && q3Match[1])
+          ? "Q3: " + q3Match[1].trim()
+          : "Q3: あえて修正せずに残した部分のこだわりは何ですか？";
     }
   }
 
@@ -762,21 +764,57 @@
         if (elImp) elImp.innerText = impVal + ' / 3';
         if (elTotal) elTotal.innerText = totalVal + ' / 15';
 
+        // 5ページ目へ移行
         navigateTo(5);
 
-        // 修正ポイント②: スプレッドシート側の「612」「33」化を防ぐため、純粋な数値（initVal, impVal）のみを送信
-        callGasBackend({
+        // スプレッドシートDB保存処理（動的ステータス更新＆完全互換ペロード送信）
+        const saveStatusEl = document.getElementById('save-status');
+        if (saveStatusEl) {
+          saveStatusEl.style.color = "var(--color-primary)";
+          saveStatusEl.innerText = "⏳ スプレッドシートDBへ学びの記録を保存中...";
+        }
+
+        const logPayload = {
+          userGrade: grade,
+          userClass: userClass,
+          userNumber: num,
+          userName: name,
+          userEmail: email,
+          topic: topic,
+          wordLimit: limit,
+          originalEssay: orig,
+          revised1: rev1,
+          revised2: rev2,
+          interviewAnswers: [ans1, ans2, ans3],
+          ans1: ans1,
+          ans2: ans2,
+          ans3: ans3,
+          initialScore: initVal,
+          improvementScore: impVal,
+          initScore: initVal,
+          impScore: impVal,
+          totalScore: totalVal,
+          finalReportText: res.response
+        };
+
+        // await で完了までしっかり同期処理してエラー検知
+        const saveRes = await callGasBackend({
           action: "saveLearningLog",
-          logData: {
-            userGrade: grade, userClass: userClass, userNumber: num,
-            userName: name, userEmail: email, topic: topic, wordLimit: limit,
-            originalEssay: orig, revised1: rev1, revised2: rev2,
-            interviewAnswers: [ans1, ans2, ans3],
-            initialScore: initVal,
-            improvementScore: impVal,
-            finalReportText: res.response
-          }
+          logData: logPayload,
+          ...logPayload, // トップレベルにもプロパティを展開してGAS側の実装差分を吸収
+          loadingMsg: "💾 成果データを保存中..."
         });
+
+        if (saveStatusEl) {
+          if (saveRes && saveRes.success) {
+            saveStatusEl.style.color = "var(--color-success)";
+            saveStatusEl.innerText = "💾 スプレッドシートDBに15点満点で保存完了！";
+          } else {
+            saveStatusEl.style.color = "#dc2626";
+            saveStatusEl.innerText = "⚠️ スプレッドシートへの保存に失敗しました（" + ((saveRes && saveRes.error) ? saveRes.error : "通信エラー") + "）";
+          }
+        }
+
       } else {
         alert("レポート生成に失敗しました: " + (res.error || "AIからの応答を取得できませんでした。再度送信ボタンを押してください。"));
       }
