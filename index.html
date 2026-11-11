@@ -16,405 +16,61 @@
       --color-text: #0f172a;
       --color-border: #cbd5e1;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: var(--font-ud);
-      background-color: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.6;
-      padding: 16px;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .alert-banner {
-      display: none;
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      color: #991b1b;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    header h1 {
-      font-size: 22px;
-      color: #1e3a8a;
-      margin-bottom: 4px;
-    }
-
+    body { font-family: var(--font-ud); background-color: var(--color-bg); color: var(--color-text); line-height: 1.6; padding: 16px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .alert-banner { display: none; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; margin-bottom: 16px; }
+    header { text-align: center; margin-bottom: 16px; }
+    header h1 { font-size: 22px; color: #1e3a8a; margin-bottom: 4px; }
     header p { font-size: 13px; color: #64748b; }
     .school-name { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-
-    .progress-card {
-      background: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-    }
-
-    .progress-steps {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-    }
-
-    .progress-line-bg {
-      position: absolute;
-      top: 14px;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-
-    .progress-line-fill {
-      position: absolute;
-      top: 14px;
-      left: 0;
-      height: 3px;
-      background: var(--color-primary);
-      transition: width 0.3s ease;
-      z-index: 1;
-      width: 0%;
-    }
-
-    .step-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      z-index: 2;
-      cursor: pointer;
-    }
-
-    .step-badge {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #e2e8f0;
-      color: #64748b;
-      font-weight: bold;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .step-item.active .step-badge {
-      background: var(--color-primary);
-      color: #ffffff;
-      box-shadow: 0 0 0 4px #dbeafe;
-    }
-
-    .step-item.completed .step-badge {
-      background: var(--color-success);
-      color: #ffffff;
-    }
-
+    .progress-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; }
+    .progress-steps { display: flex; justify-content: space-between; align-items: center; position: relative; }
+    .progress-line-bg { position: absolute; top: 14px; left: 0; width: 100%; height: 3px; background: #e2e8f0; z-index: 1; }
+    .progress-line-fill { position: absolute; top: 14px; left: 0; height: 3px; background: var(--color-primary); transition: width 0.3s ease; z-index: 1; width: 0%; }
+    .step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; cursor: pointer; }
+    .step-badge { width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0; color: #64748b; font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    .step-item.active .step-badge { background: var(--color-primary); color: #ffffff; box-shadow: 0 0 0 4px #dbeafe; }
+    .step-item.completed .step-badge { background: var(--color-success); color: #ffffff; }
     .step-label { font-size: 11px; font-weight: bold; color: #94a3b8; }
     .step-item.active .step-label { color: #1e3a8a; }
-    .step-item.completed .step-label { color: var(--color-success); }
-
-    .main-nav {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .nav-tab {
-      flex: 1;
-      padding: 10px;
-      background: #e2e8f0;
-      color: #475569;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-
-    .nav-tab.active {
-      background: var(--color-primary);
-      color: #ffffff;
-    }
-
-    .card {
-      background: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-      margin-bottom: 20px;
-    }
-
+    .main-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+    .nav-tab { flex: 1; padding: 10px; background: #e2e8f0; color: #475569; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-align: center; }
+    .nav-tab.active { background: var(--color-primary); color: #ffffff; }
+    .card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 20px; }
     .page { display: none; }
     .page.active { display: block; }
-
-    h2 {
-      font-size: 18px;
-      color: #1e293b;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 8px;
-      margin-bottom: 18px;
-    }
-
+    h2 { font-size: 18px; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 18px; }
+    .student-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .student-info-grid-2 { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 600px) { .student-info-grid, .student-info-grid-2 { grid-template-columns: 1fr; } }
     .form-group { margin-bottom: 16px; }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: bold;
-      color: #334155;
-      margin-bottom: 6px;
-    }
-
-    .question-label {
-      background: #eff6ff;
-      border-left: 4px solid #1d4ed8;
-      padding: 8px 12px;
-      border-radius: 6px;
-      color: #1e3a8a;
-      font-size: 13.5px;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    input[type="text"], input[type="email"], textarea {
-      width: 100%;
-      padding: 12px;
-      font-size: 14px;
-      font-family: var(--font-ud);
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      background: #ffffff;
-      outline: none;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px #dbeafe;
-    }
-
+    label { display: block; font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 6px; }
+    .question-label { background: #eff6ff; border-left: 4px solid #1d4ed8; padding: 8px 12px; border-radius: 6px; color: #1e3a8a; font-size: 13.5px; margin-bottom: 8px; font-weight: bold; }
+    input[type="text"], input[type="email"], textarea, select { width: 100%; padding: 12px; font-size: 14px; font-family: var(--font-ud); border: 1px solid var(--color-border); border-radius: 8px; background: #ffffff; outline: none; }
     textarea { font-family: monospace; resize: vertical; }
-
-    .open-ocr-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      width: 100%;
-      padding: 10px 14px;
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 8px;
-      transition: all 0.2s;
-    }
-
-    .open-ocr-btn:hover {
-      background: #dcfce7;
-      border-color: #86efac;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: var(--color-primary);
-      color: #ffffff;
-      font-size: 15px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      text-align: center;
-      margin-top: 16px;
-      transition: background 0.2s;
-    }
-
-    .btn:hover { background: var(--color-primary-hover); }
-
-    .btn-group-3 {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .btn-secondary {
-      background: #64748b;
-      color: #ffffff;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-      text-align: center;
-    }
-
-    .btn-secondary:hover { background: #475569; }
-
-    .btn-home {
-      background: #e2e8f0;
-      color: #334155;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-      text-align: center;
-    }
-
-    .btn-home:hover { background: #cbd5e1; }
-
-    .btn-main {
-      background: var(--color-primary);
-      color: #ffffff;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      flex: 2;
-      text-align: center;
-    }
-
-    .btn-main:hover { background: var(--color-primary-hover); }
-
+    .open-ocr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px 14px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 8px; }
+    .btn { display: block; width: 100%; padding: 14px; background: var(--color-primary); color: #ffffff; font-size: 15px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; text-align: center; margin-top: 16px; }
+    .btn-group-3 { display: flex; gap: 8px; margin-top: 16px; }
+    .btn-secondary { background: #64748b; color: #ffffff; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; flex: 1; text-align: center; }
+    .btn-home { background: #e2e8f0; color: #334155; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; flex: 1; text-align: center; }
+    .btn-main { background: var(--color-primary); color: #ffffff; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 2; text-align: center; }
     .essay-ref-title { font-size: 12px; font-weight: bold; color: #1e40af; margin-bottom: 4px; }
-    .essay-ref-box {
-      background: #eff6ff;
-      border-left: 4px solid #2563eb;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      margin-bottom: 16px;
-    }
-
-    .ai-response {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--color-primary);
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      max-height: 540px;
-      overflow-y: auto;
-      margin-bottom: 16px;
-      line-height: 1.6;
-    }
-
+    .essay-ref-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; word-break: break-all; margin-bottom: 16px; }
+    .ai-response { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--color-primary); padding: 16px; border-radius: 8px; font-size: 13px; max-height: 540px; overflow-y: auto; margin-bottom: 16px; line-height: 1.6; }
     .ai-response .table-container { overflow-x: auto; margin: 12px 0; }
-    .ai-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      background: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #cbd5e1;
-    }
-
+    .ai-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
     .ai-table th { background-color: #1e3a8a; color: #ffffff; padding: 8px 10px; text-align: left; }
     .ai-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
-
     .score-hero-container { display: flex; gap: 12px; margin-bottom: 20px; }
-    .score-hero-card {
-      flex: 1;
-      background: linear-gradient(135deg, #1d4ed8, #1e40af);
-      color: #ffffff;
-      padding: 16px 12px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
-    }
-
+    .score-hero-card { flex: 1; background: linear-gradient(135deg, #1d4ed8, #1e40af); color: #ffffff; padding: 16px 12px; border-radius: 16px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); }
     .score-hero-card.total { background: linear-gradient(135deg, #059669, #047857); }
-    .score-hero-card .label {
-      font-size: 11px;
-      font-weight: bold;
-      background: rgba(0,0,0,0.2);
-      padding: 3px 10px;
-      border-radius: 20px;
-      display: inline-block;
-    }
-
+    .score-hero-card .label { font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 20px; display: inline-block; }
     .score-hero-card .score { font-size: 30px; font-weight: 900; margin: 4px 0; }
-
-    @media (max-width: 600px) {
-      .score-hero-container { flex-direction: column; }
-      .btn-group-3 { flex-direction: column; }
-    }
-
-    .timeline-item {
-      background: #f1f5f9;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border-left: 5px solid #059669;
-    }
-
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-
-    .loading-box {
-      background: #ffffff;
-      padding: 24px 32px;
-      border-radius: 16px;
-      text-align: center;
-      font-weight: bold;
-      color: #1e293b;
-      width: 85%;
-      max-width: 400px;
-    }
-
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 4px solid #e2e8f0;
-      border-top-color: var(--color-primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px auto;
-    }
-
+    .timeline-item { background: #f1f5f9; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #059669; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 10000; }
+    .loading-box { background: #ffffff; padding: 24px 32px; border-radius: 16px; text-align: center; font-weight: bold; color: #1e293b; width: 85%; max-width: 400px; }
+    .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -439,37 +95,48 @@
       <div class="progress-steps">
         <div class="progress-line-bg"></div>
         <div class="progress-line-fill" id="progress-line"></div>
-
-        <div class="step-item active" id="step-node-1">
-          <div class="step-badge">1</div>
-          <span class="step-label">入力</span>
-        </div>
-        <div class="step-item" id="step-node-2">
-          <div class="step-badge">2</div>
-          <span class="step-label">修正1</span>
-        </div>
-        <div class="step-item" id="step-node-3">
-          <div class="step-badge">3</div>
-          <span class="step-label">修正2</span>
-        </div>
-        <div class="step-item" id="step-node-4">
-          <div class="step-badge">4</div>
-          <span class="step-label">対話</span>
-        </div>
-        <div class="step-item" id="step-node-5">
-          <div class="step-badge">5</div>
-          <span class="step-label">成果</span>
-        </div>
+        <div class="step-item active" id="step-node-1"><div class="step-badge">1</div><span class="step-label">入力</span></div>
+        <div class="step-item" id="step-node-2"><div class="step-badge">2</div><span class="step-label">修正1</span></div>
+        <div class="step-item" id="step-node-3"><div class="step-badge">3</div><span class="step-label">修正2</span></div>
+        <div class="step-item" id="step-node-4"><div class="step-badge">4</div><span class="step-label">対話</span></div>
+        <div class="step-item" id="step-node-5"><div class="step-badge">5</div><span class="step-label">成果</span></div>
       </div>
     </div>
 
-    <!-- 1ページ目 -->
+    <!-- 1ページ目：生徒情報5項目 -->
     <div id="page-1" class="page active card">
-      <h2>1. 課題設定と初版作成</h2>
-      <div class="form-group">
-        <label for="userEmail">生徒Emailまたは学籍番号：</label>
-        <input type="text" id="userEmail" placeholder="例: 2026001@school.ed.jp">
+      <h2>1. 生徒情報と初版作成</h2>
+      
+      <div class="student-info-grid">
+        <div>
+          <label for="userGrade">学年：</label>
+          <select id="userGrade">
+            <option value="1年">1年</option>
+            <option value="2年">2年</option>
+            <option value="3年">3年</option>
+          </select>
+        </div>
+        <div>
+          <label for="userClass">ホーム（組）：</label>
+          <input type="text" id="userClass" placeholder="例: 1組 / A組">
+        </div>
+        <div>
+          <label for="userNumber">出席番号：</label>
+          <input type="text" id="userNumber" placeholder="例: 15">
+        </div>
       </div>
+
+      <div class="student-info-grid-2">
+        <div>
+          <label for="userName">氏名：</label>
+          <input type="text" id="userName" placeholder="例: 武生 太郎">
+        </div>
+        <div>
+          <label for="userEmail">メールアドレス：</label>
+          <input type="email" id="userEmail" placeholder="例: 2026001@school.ed.jp">
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="topic">トピック（課題文）：</label>
         <input type="text" id="topic" placeholder="例: What is the most important thing for high school students?">
@@ -480,11 +147,9 @@
       </div>
       <div class="form-group">
         <label for="originalEssay">初版（英作文）：</label>
-        
         <button type="button" id="btn-open-ocr" class="open-ocr-btn">
           📷 手書き撮影・文字起こしアプリを別画面で開く ➔
         </button>
-        
         <textarea id="originalEssay" rows="5" placeholder="ここに英文を入力してください（手書きの場合は上のボタンから文字起こしアプリを開いてペースト可能です）..."></textarea>
       </div>
       <button type="button" id="btn-start-phase1" class="btn">添削スタート (Phase 1へ) ➔</button>
@@ -576,6 +241,7 @@
 
       <div class="card">
         <h2>学びの最終統合レポート</h2>
+        <div id="student-report-header" style="font-size:13px; font-weight:bold; color:#1e3a8a; margin-bottom:12px; background:#eff6ff; padding:8px 12px; border-radius:6px;"></div>
         <div class="ai-response" id="res-phase4">統合レポートを出力中...</div>
         <div id="save-status" style="font-size: 12px; color: var(--color-success); font-weight: bold; text-align: center; margin-bottom: 12px;">
           💾 スプレッドシートDBに15点満点で保存完了！
@@ -590,7 +256,7 @@
 
   <div id="section-history" style="display:none;" class="card">
     <h2>📜 あなたの学習ポートフォリオ (15点評価)</h2>
-    <div id="history-list"><p style="text-align: center; color: #64748b; padding: 20px;">過去ログを読み込んでいます...</p></div>
+    <div id="history-list"><p style="text-align: center; color: #64748b; padding: 20px;">1ページ目でメールアドレスを入力して検索してください。</p></div>
     <button type="button" id="btn-back-from-history" class="btn btn-secondary" style="margin-top:16px;">📝 英作文作成画面（ホーム）に戻る</button>
   </div>
 
@@ -603,11 +269,8 @@
 </div>
 
 <script>
-  // 【設定1】GASのWebアプリURL
-  const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxgL9nEtD7jYwrIec15df7qmfT-q-CitGI1Ykxzlx-CMfsvBkobDrt8y6mWtLeT5OqS/exec";
-  
-  // 【設定2】作成する文字起こしアプリ（ocr.html）のURL
-  const OCR_APP_URL = "https://ocr-app-2f67.vercel.app/";
+  const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyyHIVICe4u8myL1mx5N8ImQ_Ziogk0T5Fe7s9m3DahIC98anQtjaNz327kJpnirG-S/exec";
+  const OCR_APP_URL = "https://ocr-app-d23c.vercel.app";
 
   function showBannerError(msg) {
     const banner = document.getElementById('alert-banner');
@@ -628,47 +291,57 @@
 
   async function callGasBackend(actionData) {
     let url = "";
-    try {
-      url = getGasUrl();
-    } catch (e) {
-      return { success: false, error: e.message };
-    }
+    try { url = getGasUrl(); } catch (e) { return { success: false, error: e.message }; }
 
     showLoading(true, actionData.loadingMsg || "AIが解析中...");
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000);
+    const jitter = Math.floor(Math.random() * 1300) + 200;
+    await new Promise(r => setTimeout(r, jitter));
 
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(actionData),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      const text = await res.text();
+    let maxRetries = 2;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
 
-      let data = {};
       try {
-        data = JSON.parse(text);
-      } catch (pErr) {
-        showBannerError("⚠️ ［通信エラー］GASからJSON以外のレスポンスが返されました。デプロイ設定を確認してください。");
-        return { success: false, error: "非JSON形式の応答: " + text.substring(0, 100) };
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(actionData),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const text = await res.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch(pErr) {
+          throw new Error("非JSON形式の応答: " + text.substring(0, 100));
+        }
+
+        if (data.success) {
+          showLoading(false);
+          return data;
+        }
+
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+          continue;
+        }
+
+        showLoading(false);
+        return data;
+
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+          continue;
+        }
+        showLoading(false);
+        const errMsg = err.name === 'AbortError' ? "通信タイムアウト" : err.toString();
+        showBannerError("⚠️ 通信エラー: " + errMsg);
+        return { success: false, error: errMsg };
       }
-      
-      return data;
-    } catch (err) {
-      clearTimeout(timeoutId);
-      let errMsg = err.toString();
-      if (err.name === 'AbortError') {
-        errMsg = "通信がタイムアウトしました (45秒)。時間をおいて再度お試しください。";
-      }
-      showBannerError("⚠️ 通信エラー: " + errMsg);
-      return { success: false, error: errMsg };
-    } finally {
-      showLoading(false);
     }
   }
 
@@ -679,16 +352,14 @@
     if (overlay) overlay.style.display = show ? 'flex' : 'none';
   }
 
-  // 文字起こしアプリを別画面で開く処理
   function openOcrApp() {
     if (!OCR_APP_URL || OCR_APP_URL.includes("YOUR_OCR_APP_URL_HERE")) {
-      alert("⚠️ 文字起こしアプリのURLが設定されていません。index.html内の OCR_APP_URL を書き換えてください。");
+      alert("⚠️ 文字起こしアプリのURLが設定されていません。index.html 内の OCR_APP_URL を書き換えてください。");
       return;
     }
     window.open(OCR_APP_URL, 'ocrWindow', 'width=600,height=750,scrollbars=yes,resizable=yes');
   }
 
-  // 文字起こしアプリからの自動受取リスナー
   window.addEventListener('message', (event) => {
     if (event.data && event.data.action === 'sendEssayText') {
       const essayText = event.data.text;
@@ -711,9 +382,7 @@
     if (tabCreate) tabCreate.classList.toggle('active', tab === 'create');
     if (tabHistory) tabHistory.classList.toggle('active', tab === 'history');
 
-    if (tab === 'history') {
-      loadHistory();
-    }
+    if (tab === 'history') loadHistory();
   }
 
   function goHome() {
@@ -726,7 +395,6 @@
 
   function navigateTo(stepNum) {
     switchMainTab('create');
-
     for (let i = 1; i <= 5; i++) {
       const p = document.getElementById('page-' + i);
       if (p) p.classList.remove('active');
@@ -824,8 +492,12 @@
   }
 
   async function processPhase1() {
-    const elOrig = document.getElementById('originalEssay');
-    const orig = elOrig ? elOrig.value : "";
+    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
+    const name = document.getElementById('userName') ? document.getElementById('userName').value : "";
+    const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+
+    if (!name || name.trim() === "") return alert("氏名を入力してください。");
+    if (!email || email.trim() === "") return alert("メールアドレスを入力してください。");
     if (!orig || orig.trim() === "") return alert("初版の英文を入力してください。");
 
     try {
@@ -838,7 +510,7 @@
         setAiResponseContent('res-phase1', res.response);
         navigateTo(2);
       } else {
-        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+        alert("AI解析エラー: " + (res.error || "通信に失敗しました。もう一度お試しください。"));
       }
     } catch (err) {
       alert("処理中にエラーが発生しました: " + err.toString());
@@ -846,8 +518,7 @@
   }
 
   async function processPhase2() {
-    const elRev1 = document.getElementById('revised1');
-    const rev1 = elRev1 ? elRev1.value : "";
+    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
     if (!rev1 || rev1.trim() === "") return alert("修正版1を入力してください。");
 
     try {
@@ -869,7 +540,7 @@
         setAiResponseContent('res-phase2', res.response);
         navigateTo(3);
       } else {
-        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+        alert("AI解析エラー: " + (res.error || "通信に失敗しました。もう一度お試しください。"));
       }
     } catch (err) {
       alert("処理中にエラーが発生しました: " + err.toString());
@@ -877,13 +548,9 @@
   }
 
   async function processPhase3() {
-    const elOrig = document.getElementById('originalEssay');
-    const elRev1 = document.getElementById('revised1');
-    const elRev2 = document.getElementById('revised2');
-
-    const orig = elOrig ? elOrig.value : "";
-    const rev1 = elRev1 ? elRev1.value : "";
-    const rev2 = elRev2 ? elRev2.value : "";
+    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
+    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
+    const rev2 = document.getElementById('revised2') ? document.getElementById('revised2').value : "";
 
     if (!rev2 || rev2.trim() === "") return alert("修正版2を入力してください。");
 
@@ -911,7 +578,7 @@
         updateInterviewLabels(res.response);
         navigateTo(4);
       } else {
-        alert("AI解析エラー:\n" + (res.error || "通信に失敗しました。もう一度お試しください。"));
+        alert("AI解析エラー: " + (res.error || "通信に失敗しました。もう一度お試しください。"));
       }
     } catch (err) {
       alert("処理中にエラーが発生しました: " + err.toString());
@@ -934,13 +601,15 @@
   }
 
   async function processPhase4() {
-    const elOrig = document.getElementById('originalEssay');
-    const elRev1 = document.getElementById('revised1');
-    const elRev2 = document.getElementById('revised2');
+    const orig = document.getElementById('originalEssay') ? document.getElementById('originalEssay').value : "";
+    const rev1 = document.getElementById('revised1') ? document.getElementById('revised1').value : "";
+    const rev2 = document.getElementById('revised2') ? document.getElementById('revised2').value : "";
 
-    const orig = elOrig ? elOrig.value : "";
-    const rev1 = elRev1 ? elRev1.value : "";
-    const rev2 = elRev2 ? elRev2.value : "";
+    const grade = document.getElementById('userGrade') ? document.getElementById('userGrade').value : "";
+    const userClass = document.getElementById('userClass') ? document.getElementById('userClass').value : "";
+    const num = document.getElementById('userNumber') ? document.getElementById('userNumber').value : "";
+    const name = document.getElementById('userName') ? document.getElementById('userName').value : "";
+    const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
 
     const topic = document.getElementById('topic') ? document.getElementById('topic').value : "";
     const limit = document.getElementById('wordLimit') ? document.getElementById('wordLimit').value : "";
@@ -989,6 +658,11 @@
       if (res.success && res.response) {
         setAiResponseContent('res-phase4', res.response);
 
+        const headerEl = document.getElementById('student-report-header');
+        if (headerEl) {
+          headerEl.innerText = `👤 ${grade} ${userClass} ${num}番 ${name}（${email}）`;
+        }
+
         let initVal = 8;
         let impVal = 3;
 
@@ -1014,16 +688,12 @@
 
         navigateTo(5);
 
-        const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
         callGasBackend({
           action: "saveLearningLog",
           logData: {
-            userEmail: email,
-            topic: topic,
-            wordLimit: limit,
-            originalEssay: orig,
-            revised1: rev1,
-            revised2: rev2,
+            userGrade: grade, userClass: userClass, userNumber: num,
+            userName: name, userEmail: email, topic: topic, wordLimit: limit,
+            originalEssay: orig, revised1: rev1, revised2: rev2,
             interviewAnswers: [ans1, ans2, ans3],
             initialScore: initVal + " / 12 pts",
             improvementScore: impVal + " / 3 pts",
@@ -1031,7 +701,7 @@
           }
         });
       } else {
-        alert("レポート生成に失敗しました:\n" + (res.error || "AIからの応答を取得できませんでした。再度送信ボタンを押してください。"));
+        alert("レポート生成に失敗しました: " + (res.error || "AIからの応答を取得できませんでした。再度送信ボタンを押してください。"));
       }
     } catch (err) {
       alert("処理中にエラーが発生しました: " + err.toString());
@@ -1041,6 +711,12 @@
   async function loadHistory() {
     try {
       const email = document.getElementById('userEmail') ? document.getElementById('userEmail').value : "";
+      if (!email || email.trim() === "") {
+        const listDiv = document.getElementById('history-list');
+        if (listDiv) listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">1ページ目でメールアドレスを入力してから切り替えてください。</p>';
+        return;
+      }
+
       const res = await callGasBackend({ action: "getLearningHistory", userEmail: email, loadingMsg: "📜 学習履歴を取得中..." });
       const listDiv = document.getElementById('history-list');
       if (!listDiv) return;
@@ -1049,18 +725,17 @@
         let html = '';
         res.logs.forEach(log => {
           html += '<div class="timeline-item">' +
-            '<div style="font-size:12px; color:#64748b;">📅 ' + log.timestamp + ' | 生徒: ' + escapeHtml(log.userEmail) + '</div>' +
+            '<div style="font-size:12px; color:#64748b;">📅 ' + log.timestamp + ' | 生徒: ' + escapeHtml(log.userGrade) + ' ' + escapeHtml(log.userClass) + ' ' + escapeHtml(log.userNumber) + '番 ' + escapeHtml(log.userName) + '</div>' +
             '<div style="font-weight:bold; font-size:15px; margin:4px 0; color:#1e293b;">課題: ' + escapeHtml(log.topic) + '</div>' +
             '<div style="font-size:13px; color:#1d4ed8; font-weight:bold; margin-bottom:6px;">' +
               '🏆 トータル（15点満点）: ' + log.totalScore + ' / 15点 （初版:' + log.initScore + '点 + 改善:' + log.impScore + '点）' +
             '</div>' +
             '<div style="font-size:12px; color:#334155; margin-bottom:4px;"><b>最終版(Revised 2):</b> ' + escapeHtml(log.revised2) + '</div>' +
-            (log.pdfUrl ? '<a href="' + log.pdfUrl + '" target="_blank" style="font-size:12px; color:var(--color-primary); font-weight:bold;">📄 PDFを表示</a>' : '') +
           '</div>';
         });
         listDiv.innerHTML = html;
       } else {
-        listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">まだ保存された学習履歴がありません。</p>';
+        listDiv.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">保存された学習履歴がありません。</p>';
       }
     } catch (err) {
       console.error("履歴取得エラー:", err);
