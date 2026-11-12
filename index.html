@@ -567,21 +567,27 @@
       const topic = getVal('topic');
       const limit = getVal('wordLimit');
 
+      // 改善③：初版評価プロンプトの厳格化（高得点・安易な満点を厳禁とし、目標目安4〜8点に設定）
       const promptArr = [
         "Topic: [" + topic + "]",
         "Limit: [" + limit + "]",
         "Essay: [" + orig + "]",
         "",
-        "【重要・評価基準】",
-        "生徒の初版英文に対して、日本の高校生向け英作文の厳格・客観的なルーブリック基準で評価してください。",
-        "初版英文に文法の誤り、語彙の不自然さ、論理の飛躍、説明不足、課題への応答不足がある場合は、必ず1点または2点に減点してください。根拠のない安易な満点（各3点・計12点）は絶対に付けず、生徒が改善に取り組めるよう適切な得点（目安: 5〜10点）を算出して評価してください。",
+        "【重要・厳格な採点基準】",
+        "生徒の初版英文に対して、日本の高校生向け英作文の【非常に厳格・客観的なルーブリック基準】で評価してください。",
+        "得点が高くなりすぎないよう基準を厳しく設定してください。初版英文に含まれる文法ミス・前置詞の誤り・単調な語彙・不自然な表現・論理の粗さ・説明不足・課題への応答不足は厳しく減点してください。",
+        "・各観点（各3点満点）の採点目安：",
+        "  3点: 完璧で極めて自然・高度な表現（初版では滅多に出さない）",
+        "  2点: 意味は通じるが、語彙が単調、文法ミスがある、または不自然",
+        "  1点: 大きな文法エラー、意味が不明瞭、または課題への応答不足",
+        "・初版の合計点（12点満点）の目安は【4〜8点】とし、相当完璧な英文でない限り9点以上の高得点は絶対に与えないでください。",
         "",
-        "以下の4観点（各3点満点、合計12点満点）で評価し、指定のMarkdownフォーマットで正確に出力してください。また、正解案は絶対に出さずに自力修正を促すアドバイス（最大3項目）を出力してください。",
+        "以下の4観点（各3点満点、合計12点満点）で厳しく評価し、指定のMarkdownフォーマットで出力してください。また、正解案は絶対に出さずに自力修正を促すアドバイス（最大3項目）を出力してください。",
         "",
         "### 1. 初版スコア評価",
         "Initial Score: X / 12 pts",
         "",
-        "| 観点 | 得点 | 評価理由 (1文で具体的かつ簡潔に記述) |",
+        "| 観点 | 得点 | 評価理由 (1文で具体的かつ厳格に記述) |",
         "| :--- | :--- | :--- |",
         "| 文法・語彙 | X/3 | 理由文 |",
         "| 構成・論理 | X/3 | 理由文 |",
@@ -605,11 +611,16 @@
       if (res.success && res.response) {
         const text = res.response;
 
-        let scoreVal = 8;
+        // パース処理①：初版12点満点スコアの抽出＆グローバル保持
+        let scoreVal = 7;
         const scoreMatch = text.match(/Initial\s*Score\s*[:=]\s*\*?\*?(\d{1,2})/i) || text.match(/初版.*[:=]\s*(\d{1,2})/i) || text.match(/(\d{1,2})\s*\/\s*12/);
         if (scoreMatch && scoreMatch[1]) {
           scoreVal = parseInt(scoreMatch[1], 10);
         }
+        
+        // 改善②：2ページ目で確定した点数をグローバル変数に保持
+        window.savedPhase1Score = scoreVal;
+
         const elP1Score = document.getElementById('val-phase1-score');
         if (elP1Score) elP1Score.innerText = scoreVal + ' / 12';
 
@@ -775,19 +786,23 @@
     const ans2 = getVal('ans2');
     const ans3 = getVal('ans3');
 
-    // 2ページ目（Phase 1）での初期評価テキスト（存在すれば参照）
     const phase1RubricEl = document.getElementById('res-phase1-rubric');
     const phase1Text = phase1RubricEl ? phase1RubricEl.innerText : "";
 
+    // 改善②：Phase 1で記録された初版スコアを取得（固定値として適用）
+    const p1Score = (typeof window.savedPhase1Score === 'number') ? window.savedPhase1Score : 7;
+
     try {
-      // 修正ポイント：5ページ目でも2ページ目と同じ4観点ルーブリックで「初版」と「修正版2」を比較
+      // 改善①：maxTokensを2800に拡大し、途中で文章が切れないよう明確に要約出力指示
+      // 改善②：初版スコアはPhase 1で決定した【p1Score】点を完全固定で出力させるプロンプト構造
       const promptArr = [
-        "以下の学習データから「学びの最終統合レポート」を作成してください。",
+        "以下の学習データから「学びの最終統合レポート」を作成してください。途中で文章や表が途切れないよう、各項目を要約し簡潔・明瞭に出力してください。",
         "",
         "Topic:[" + topic + "] | Limit:[" + limit + "]",
         "Original:[" + orig + "] | Revised 2:[" + rev2 + "]",
         "Q1:[" + ans1 + "] | Q2:[" + ans2 + "] | Q3:[" + ans3 + "]",
-        "Phase 1 Evaluation Reference: [" + phase1Text.substring(0, 300) + "]",
+        "Phase 1 Reference Text: [" + phase1Text.substring(0, 300) + "]",
+        "Phase 1 Fixed Initial Score: [" + p1Score + " / 12 pts]",
         "",
         "### 1. Final Integrated Summary",
         "(英語1〜2文で総評)",
@@ -795,7 +810,8 @@
         "(日本語訳1文)",
         "",
         "### 2. 12-Point Rubric Evaluation (Original vs Revised 2)",
-        "以下の4観点（①文法・語彙, ②構成・論理, ③表現の自然さ, ④課題への応答 各3点/計12点満点）について、初版と修正版2の評価を比較したMarkdown表を出力してください。初版の評価はPhase 1での評価結果と整合させてください。",
+        "以下の4観点（①文法・語彙, ②構成・論理, ③表現の自然さ, ④課題への応答 各3点/計12点満点）について、初版と修正版2の評価を比較したMarkdown表を出力してください。",
+        "【重要・絶対厳守】初版(Original)の各観点得点の合計は、Phase 1で確定した【 " + p1Score + "点 】と必ず一致させてください。初版の評価変更は禁止です。",
         "| 評価観点 | 初版 (Original) | 修正版2 (Revised 2) | 改善のポイント |",
         "| :--- | :--- | :--- | :--- |",
         "| 文法・語彙 | X/3 | Y/3 | (8文字以内) |",
@@ -810,7 +826,7 @@
         "(模範英文の和訳)",
         "",
         "### 4. Score Summary",
-        "Initial Score: X / 12 pts",
+        "Initial Score: " + p1Score + " / 12 pts",
         "Improvement Evaluation: Y / 3 pts"
       ];
       const prompt = promptArr.join("\n");
@@ -818,7 +834,7 @@
       const res = await callGasBackend({ 
         action: "callGeminiAPI", 
         prompt: prompt, 
-        maxTokens: 2200, 
+        maxTokens: 2800, // 改善①：1800 -> 2800 へ拡張して途切れ防止
         loadingMsg: "🚀 統合レポートを生成中..." 
       });
 
@@ -830,15 +846,13 @@
           headerEl.innerText = "👤 " + grade + " " + userClass + " " + num + "番 " + name + "（" + email + "）";
         }
 
-        let initVal = 8;
+        // 改善②：初版スコアはPhase 1で確定した点数（p1Score）を完全固定適用
+        let initVal = p1Score;
         let impVal = 3;
 
         try {
           const text = res.response;
-          const initM = text.match(/Initial\s*Score\s*[:=]\s*\*?\*?(\d{1,2})/i) || text.match(/初版.*[:=]\s*(\d{1,2})/i);
           const impM = text.match(/Improvement\s*(?:Evaluation|Score)?\s*[:=]\s*\*?\*?([1-3])/i) || text.match(/改善度.*[:=]\s*([1-3])/i);
-          
-          if (initM && initM[1]) initVal = parseInt(initM[1], 10);
           if (impM && impM[1]) impVal = parseInt(impM[1], 10);
         } catch (parseErr) {
           console.warn("スコア抽出警告:", parseErr);
@@ -848,10 +862,15 @@
         const elInit = document.getElementById('val-init-score');
         const elImp = document.getElementById('val-imp-score');
         const elTotal = document.getElementById('val-total-score');
+        const elP1Score = document.getElementById('val-phase1-score');
 
+        // 5ページ目表示の更新
         if (elInit) elInit.innerText = initVal + ' / 12';
         if (elImp) elImp.innerText = impVal + ' / 3';
         if (elTotal) elTotal.innerText = totalVal + ' / 15';
+
+        // 2ページ目のスコアカードも5ページ目と完全に同期
+        if (elP1Score) elP1Score.innerText = initVal + ' / 12';
 
         navigateTo(5);
 
@@ -861,6 +880,7 @@
           saveStatusEl.innerText = "⏳ スプレッドシートDBへ学びの記録を保存中...";
         }
 
+        // 数字文字列（String型）によるGASエラー回避
         const initStr = String(initVal);
         const impStr = String(impVal);
         const totalStr = String(totalVal);
